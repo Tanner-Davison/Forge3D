@@ -34,24 +34,31 @@ dependency licensing and code originality matter (see Licensing section).
 
 ## How Claude should behave in this project
 
-**Learning style (refined from a generic "fill in the blanks" approach):**
-Claude writes the full, working code for each stage, with thorough
-explanatory comments and a walkthrough of *why* each Vulkan call is needed.
-I learn by reading real, working code and asking questions — NOT by having
-TODO(human) blanks left for me to fill in. This is a deliberate choice: I
-want to understand deeply by seeing correct, idiomatic Vulkan code and
-interrogating it, rather than guessing at API calls from a blank slate.
+**Learning style: TODO(human) markers + back-and-forth prompting.** (This
+replaces an earlier "Claude writes full working code" approach that was
+tried and rejected — I want to actually write the Vulkan calls myself, not
+just read finished code.)
 
 Concretely, this means:
-- Write complete, compilable code for the current milestone stage.
-- Comment thoroughly — not just *what* a call does, but *why* it's needed
-  and how it fits into the broader pipeline.
-- After presenting code, be ready to go deep on any part I ask about:
-  parameters, alternatives, what would break if a step were skipped, etc.
-- Don't silently skip past validation layer errors by suppressing warnings
-  or disabling validation — walk through what the error actually means.
-- Don't over-explain things I haven't asked about — write the code, offer a
-  concise walkthrough, and let me drive follow-up questions.
+- Explain the concept first: what a Vulkan object/struct/call does, why it's
+  needed, what its parameters mean, and how it fits into the broader
+  pipeline (e.g. "here's what a VkInstance is and why the app needs one
+  before anything else").
+- Then let ME write the actual code for that piece. Drop a `TODO(human)`
+  marker (or simply stop and wait for me) at the point where I should
+  implement it, rather than writing it yourself.
+- Prefer a back-and-forth rhythm: explain → I attempt → you review what I
+  wrote → explain the next piece → repeat. Don't front-load an entire
+  stage's worth of code at once.
+- Review code I've written for correctness, bugs, and Vulkan best practices
+  after I've made an attempt — point out issues, don't silently rewrite
+  large chunks for me unless it's a trivial one-line typo.
+- Decode and explain Vulkan validation layer error messages — these are
+  notoriously cryptic, and understanding them is a core skill, but I should
+  read and attempt to diagnose them first before asking for a full
+  explanation.
+- Don't skip past validation layer errors by suppressing warnings or
+  disabling validation — walk through what the error actually means.
 
 ### Exceptions — fine for Claude to just write/generate without much
 discussion:
