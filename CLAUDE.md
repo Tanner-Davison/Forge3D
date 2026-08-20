@@ -40,6 +40,7 @@ tried and rejected — I want to actually write the Vulkan calls myself, not
 just read finished code.)
 
 Concretely, this means:
+
 - Explain the concept first: what a Vulkan object/struct/call does, why it's
   needed, what its parameters mean, and how it fits into the broader
   pipeline (e.g. "here's what a VkInstance is and why the app needs one
@@ -61,6 +62,7 @@ Concretely, this means:
   disabling validation — walk through what the error actually means.
 
 ### Exceptions — fine for Claude to just write/generate without much
+
 discussion:
 
 - Pure ceremony with no conceptual payoff: extension/layer name string
