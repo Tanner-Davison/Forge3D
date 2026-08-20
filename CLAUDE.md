@@ -1,66 +1,95 @@
-# Project: [Engine Name] — Vulkan 3D Engine
+# Project: Forge3D — Vulkan 3D Engine
 
 ## Purpose
 
 This is a learning project. The primary goal is for me (the developer) to deeply
 understand Vulkan and 3D rendering architecture by writing the implementation
-myself — not to ship a finished engine as fast as possible.
+myself — not to ship a finished engine as fast as possible. There is also a
+secondary long-term goal: this engine may eventually be sold/monetized, so
+dependency licensing and code originality matter (see Licensing section).
+
+## Decisions already made (do not re-litigate these unless I explicitly ask)
+
+- **Graphics API: Vulkan**, chosen deliberately over OpenGL/DirectX12/WebGPU
+  for its explicit, low-level model — it teaches GPU concepts (command
+  buffers, memory, synchronization) that transfer everywhere, at the cost of
+  a steeper learning curve.
+- **API style: Raw Vulkan C API** (`VkCreateInfo`-struct style), NOT
+  `vulkan.hpp`. This matches nearly all tutorials/docs/specs so knowledge
+  transfers directly, and keeps the explicit parameter-by-parameter nature
+  of Vulkan visible rather than hidden behind RAII wrappers.
+- **First milestone: a single hardcoded triangle on screen.** This exercises
+  the entire minimum pipeline (instance → device → swapchain → render pass →
+  pipeline → command buffers → sync) without extra complexity like meshes,
+  cameras, or textures, so later milestones build on a proven foundation.
+- **Windowing library: GLFW** (`libglfw3-dev`) — not SDL3. (Forge2D used
+  SDL3, but this project's dependency install explicitly used GLFW instead;
+  confirm with me if this ever seems ambiguous.)
+- **Build system: CMake**, using `find_package(Vulkan)`.
+- **Dependency strategy: installed via apt** (`libvulkan-dev`,
+  `libglfw3-dev`, `libglm-dev`, `glslang-tools`), not vcpkg/FetchContent —
+  zero build-system overhead, matches native Linux conventions. Can be
+  swapped for vcpkg later without touching source if the project ever needs
+  to target Windows/macOS too.
 
 ## How Claude should behave in this project
 
-**Default to Learning mode behavior even outside /output-style learning.**
-Always assume I want to write Vulkan API calls, struct setups, and rendering
-logic myself. Do not implement Vulkan-specific code paths for me by default,
-even if I seem stuck or the task looks tedious.
+**Learning style (refined from a generic "fill in the blanks" approach):**
+Claude writes the full, working code for each stage, with thorough
+explanatory comments and a walkthrough of *why* each Vulkan call is needed.
+I learn by reading real, working code and asking questions — NOT by having
+TODO(human) blanks left for me to fill in. This is a deliberate choice: I
+want to understand deeply by seeing correct, idiomatic Vulkan code and
+interrogating it, rather than guessing at API calls from a blank slate.
 
-### What Claude SHOULD do:
+Concretely, this means:
+- Write complete, compilable code for the current milestone stage.
+- Comment thoroughly — not just *what* a call does, but *why* it's needed
+  and how it fits into the broader pipeline.
+- After presenting code, be ready to go deep on any part I ask about:
+  parameters, alternatives, what would break if a step were skipped, etc.
+- Don't silently skip past validation layer errors by suppressing warnings
+  or disabling validation — walk through what the error actually means.
+- Don't over-explain things I haven't asked about — write the code, offer a
+  concise walkthrough, and let me drive follow-up questions.
 
-- Explain concepts before I write code: what a Vulkan object/struct/call does,
-  why it's needed, what its parameters mean, and how it fits into the broader
-  pipeline (e.g. "here's what a VkInstance is and why the app needs one before
-  anything else").
-- Drop TODO(human) markers at meaningful implementation points rather than
-  filling them in, per Learning mode conventions.
-- Review code I've written for correctness, bugs, and Vulkan best practices
-  after I've made an attempt.
-- Decode and explain Vulkan validation layer error messages — these are
-  notoriously cryptic, and understanding them is a core skill, but I should
-  read and attempt to diagnose them first before asking for a full explanation.
-- Answer "why is this the right approach" / conceptual architecture questions
-  in depth.
-- Help me debug: ask clarifying questions about what I've already tried,
-  point me toward what's likely wrong, but let me find/fix it where feasible.
-
-### What Claude should NOT do by default:
-
-- Do not write full Vulkan setup code (instance creation, device selection,
-  swapchain, render passes, pipeline objects, command buffers, sync
-  primitives) even if I ask for "just the boilerplate" — ask me first if I
-  really want it written for me, and remind me this is exactly the part meant
-  to be learned by doing.
-- Do not "fix" my code by rewriting large chunks silently — point out the
-  issue and let me apply the fix, unless it's a trivial one-line typo.
-- Do not skip past validation layer errors by suppressing warnings or
-  disabling validation — walk through what the error actually means instead.
-
-### Exceptions — fine for Claude to just write/generate:
+### Exceptions — fine for Claude to just write/generate without much
+discussion:
 
 - Pure ceremony with no conceptual payoff: extension/layer name string
   constants, CMakeLists.txt / build system boilerplate, third-party library
-  binding glue (e.g. GLFW/SDL3 window creation calls unrelated to Vulkan
-  itself), asset loading utilities not related to the graphics API itself.
+  binding glue (e.g. GLFW window creation calls unrelated to Vulkan itself).
 - Test/debug tooling (e.g. a simple FPS counter, a debug camera controller)
   that isn't the actual subject of the learning.
 
-## Tech stack
+## Environment (native Ubuntu — verified working, no need to re-check)
 
-- Language: C++ (match my existing Forge2D conventions where relevant)
-- Graphics API: Vulkan (raw API, not a wrapper library like vulkan.hpp,
-  unless I explicitly ask to switch)
-- Windowing: [SDL3 / GLFW — fill in whichever you're using]
-- Build system: [CMake / etc.]
+- **Native Ubuntu Linux (dual-boot)**, NOT WSL2. This project was originally
+  scoped on a WSL2 setup where Vulkan only had access to the GPU through
+  Mesa's "Dozen" Vulkan-over-D3D12 translation layer. That machine has since
+  been replaced by a native Ubuntu install specifically to get real,
+  untranslated GPU access for accurate Vulkan development and performance.
+- **GPU: NVIDIA GeForce RTX 3090**, confirmed working via `vulkaninfo` with
+  the real NVIDIA proprietary driver directly — no translation layer, no
+  Mesa Dozen involved anymore.
+- Toolchain already installed and confirmed working: `cmake`, `g++`,
+  `libvulkan-dev`, `libglfw3-dev`, `libglm-dev`, `glslang-tools`,
+  `vulkan-tools` (for `vulkaninfo`).
+- Also available: `my-claude` (personal Claude Code CLI, Pro subscription)
+  and `claude-vasion` (work Bedrock CLI) are both configured on this
+  machine — this project should always be worked on via `my-claude`, never
+  `claude-vasion`.
 
-## Current milestone
+## Licensing
 
-[Update this as you go, e.g.: "Getting a single rotating textured cube on
-screen — currently working on swapchain + render pass setup"]
+Keeping this **unlicensed / all rights reserved** while building, since
+there's future interest in potentially selling this engine. Revisit
+licensing (BSL, dual-license, or fully open) once there's a clearer picture
+of what "sellable" looks like. Dependency choices (GLFW: zlib/libpng license,
+GLM: MIT) are already commercial-resale-friendly; avoid adding any
+GPL/LGPL-licensed dependencies without flagging it first.
+
+## Current status
+
+Nothing has been implemented yet — `main.cpp` is empty. Next step: begin
+Milestone 1 (hardcoded triangle), starting with Vulkan instance creation.
