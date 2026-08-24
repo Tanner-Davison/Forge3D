@@ -1,3 +1,8 @@
+# build artifacts
+build/
+compile_flags.txt
+
+# forge3d ai learning 
 ai-documentation/
 .claude/
 CLAUDE.md
