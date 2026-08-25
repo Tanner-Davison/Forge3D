@@ -1,0 +1,15 @@
+format:
+  line_width: 80
+  tab_size: 4
+
+  # Always break one argument per line instead of packing multiple per line
+
+  # Keep flow-control keywords (if/foreach/endif/etc) unindented relative to their body
+  dangle_parens: false
+
+  # Consistent spacing
+  separate_ctrl_name_with_space: false
+  separate_fn_name_with_space: false
+
+  # Preserve blank lines between logical sections (up to 2)
+  keep_max_blank_lines: 2
