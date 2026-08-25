@@ -22,13 +22,7 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(forge3d PRIVATE glfw Vulkan::Vulkan)
 
 if(APPLE)
-  # Add MoltenVK framework path
-  set(MOLTENVK_PATH "$ENV{VULKAN_SDK}/MoltenVK/MoltenVK.xcframework")
-  target_link_libraries(${PROJECT_NAME} PUBLIC "-framework Metal" "-framework
-    MetalKit" "-framework Cocoa")
-
-  # If using MoltenVK as a framework
-  target_link_libraries(${PROJECT_NAME} PUBLIC "${MOLTENVK_PATH}")
+  target_link_libraries(${PROJECT_NAME} PUBLIC "-framework Metal" "-framework MetalKit" "-framework Cocoa")
 endif()
 
 target_include_directories(
