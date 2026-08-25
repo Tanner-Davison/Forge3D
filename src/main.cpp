@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-    GLFWwindow* window = glfwCreateWindow(640, 480, "Forge3D", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(640, 480, "Tannery", NULL, NULL);
 
     if (!window) {
         std::print("GLFW Window Creation Failed");
@@ -42,9 +42,9 @@ int main(int argc, char** argv) {
     VkApplicationInfo app_info = {
         .sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO,
         .pNext              = nullptr,
-        .pApplicationName   = "Forge3D",
+        .pApplicationName   = "Tannery",
         .applicationVersion = VK_MAKE_VERSION(1, 0, 0),
-        .pEngineName        = "ForgedVK",
+        .pEngineName        = "Tannery",
         .engineVersion      = 1,
         .apiVersion         = VK_API_VERSION_1_3,
     };
