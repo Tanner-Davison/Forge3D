@@ -1,0 +1,6 @@
+CompileFlags:
+  Add:
+    - -I./include
+    - -I/home/tanner-davison/projects/cpp/forge3d/include
+    - -I/usr/include/vulkan
+    - -std=c++23
