@@ -1,6 +1,28 @@
 # build artifacts
 build/
 compile_flags.txt
+main
+
+# editors
+.vscode/
+.idea/
+
+# cmake
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+
+# git
+.git/
+
 
 # forge3d ai learning 
 ai-documentation/
