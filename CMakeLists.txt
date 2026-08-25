@@ -4,7 +4,7 @@
 # STANDARD BLOCK
 # ----------------------------------------------------------------------------------------------------
 cmake_minimum_required(VERSION 3.20)
-project(forge3d LANGUAGES CXX)
+project(tannery LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON) # Makes it Fail-Loudly instead of silently
                                     # downgrading
@@ -19,10 +19,12 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 
 # LINKING &
 # INCLUDES------------------------------------------------------------------------------------------------------
-target_link_libraries(forge3d PRIVATE glfw Vulkan::Vulkan)
+target_link_libraries(tannery PRIVATE glfw Vulkan::Vulkan)
 
 if(APPLE)
-  target_link_libraries(${PROJECT_NAME} PUBLIC "-framework Metal" "-framework MetalKit" "-framework Cocoa")
+  target_link_libraries(
+    ${PROJECT_NAME} PUBLIC "-framework Metal" "-framework MetalKit"
+                           "-framework Cocoa")
 endif()
 
 target_include_directories(
