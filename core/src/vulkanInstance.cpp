@@ -43,6 +43,7 @@ VkInstance createInstance(const char* appName) {
     for (const auto& ext : extensions_with_debug_utils) {
         std::print("  {}\n", ext);
     }
+    std::print("\n");
 
     const char* layers[] = {"VK_LAYER_KHRONOS_validation"};
 

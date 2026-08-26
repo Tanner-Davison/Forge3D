@@ -49,7 +49,7 @@ VkPhysicalDevice getPhysicalDevice(VkInstance instance) {
         uint32_t minor = VK_API_VERSION_MINOR(properties2.properties.apiVersion);
         uint32_t patch = VK_API_VERSION_PATCH(properties2.properties.apiVersion);
 
-        std::println("\nDevice Name:\t{}", properties2.properties.deviceName);
+        std::println(" Device Name:\t{}", properties2.properties.deviceName);
         std::println(" API VERSION:\t{}.{}.{}", major, minor, patch);
         std::println(" Driver Version: {}", properties2.properties.driverVersion);
         std::println(" Vendor ID:\t{:#x}", properties2.properties.vendorID);
@@ -70,7 +70,7 @@ void printPhysicalDevices(VkInstance instance) {
     vkEnumeratePhysicalDevices(instance, &device_count, nullptr);
     std::vector<VkPhysicalDevice> devices(device_count);
     vkEnumeratePhysicalDevices(instance, &device_count, devices.data());
-    std::println("\n----All available Devices ----");
+    std::println("\n------| Devices Found |------");
     for (const auto& device : devices) {
         VkPhysicalDeviceProperties2 properties2{};
         properties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
@@ -78,4 +78,5 @@ void printPhysicalDevices(VkInstance instance) {
         vkGetPhysicalDeviceProperties2(device, &properties2);
         std::println("{}", properties2.properties.deviceName);
     }
+    std::println("------------------------------\n");
 }

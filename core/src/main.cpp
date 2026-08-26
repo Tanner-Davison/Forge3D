@@ -60,8 +60,9 @@ int main(int argc, char** argv) {
         cleanup(window, vkInstance, debug_messenger);
         return 5;
     }
-    std::println("Queue family count: {}", graphicsFamilyQueue.familyCount);
-    std::println("Graphics family Index: {}", graphicsFamilyQueue.graphicsFamily.value());
+    std::println("Family Queue Information:");
+    std::println("Queue Family Count: {}", graphicsFamilyQueue.familyCount);
+    std::println("Graphics Family Index: {}", graphicsFamilyQueue.graphicsFamily.value());
 
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
