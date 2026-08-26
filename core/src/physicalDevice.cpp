@@ -1,24 +1,8 @@
 #include "physicalDevice.hpp"
+#include "vk_enum_string_helper.h"
 #include <cstdint>
 #include <print>
 #include <vector>
-
-inline std::string getDeviceTypeString(VkPhysicalDeviceType type) {
-    switch (type) {
-        case VK_PHYSICAL_DEVICE_TYPE_OTHER:
-            return "Other";
-        case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
-            return "Integrated GPU";
-        case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
-            return "Discrete GPU";
-        case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
-            return "Virtual GPU";
-        case VK_PHYSICAL_DEVICE_TYPE_CPU:
-            return "CPU";
-        default:
-            return "Unknown Device Type";
-    }
-}
 
 VkPhysicalDevice getPhysicalDevice(VkInstance instance) {
     uint32_t device_count = 0;
@@ -54,7 +38,8 @@ VkPhysicalDevice getPhysicalDevice(VkInstance instance) {
         std::println(" Driver Version: {}", properties2.properties.driverVersion);
         std::println(" Vendor ID:\t{:#x}", properties2.properties.vendorID);
         std::println(" Device ID:\t{:#x}", properties2.properties.deviceID);
-        std::println(" Device Type:\t{}", getDeviceTypeString(properties2.properties.deviceType));
+        // Uses vk_enum_string_helper.h
+        std::println(" Device Type:\t{}", string_VkPhysicalDeviceType(properties2.properties.deviceType));
     } else {
         return VK_NULL_HANDLE;
     }
