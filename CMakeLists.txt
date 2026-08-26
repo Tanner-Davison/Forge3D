@@ -13,7 +13,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON) # Makes it Fail-Loudly instead of silently
 find_package(Vulkan REQUIRED)
 find_package(glfw3 REQUIRED)
 
-set(SOURCES src/main.cpp src/vulkanInstance.cpp src/windowHandling.cpp)
+set(SOURCES core/src/main.cpp core/src/vulkanInstance.cpp
+            core/src/windowHandling.cpp core/src/physicalDevice.cpp)
 # TARGETS
 # -------------------------------------------------------------------------------------------
 add_executable(${PROJECT_NAME} ${SOURCES})
@@ -29,5 +30,5 @@ if(APPLE)
 endif()
 
 target_include_directories(
-    ${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
-                            ${CMAKE_CURRENT_SOURCE_DIR}/src)
+    ${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/core/include
+                            ${CMAKE_CURRENT_SOURCE_DIR}/core/src)
