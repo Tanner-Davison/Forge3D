@@ -45,7 +45,7 @@ BinPackParameters: false
 BreakBeforeBinaryOperators: None
 BreakBeforeTernaryOperators: true
 BreakStringLiterals: true
-AllowAllParametersOfDeclarationOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: false
 PackConstructorInitializers: CurrentLine
 BreakConstructorInitializers: BeforeComma
 

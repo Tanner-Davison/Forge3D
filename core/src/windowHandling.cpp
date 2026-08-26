@@ -3,7 +3,7 @@
 
 /*GLFW CALLBACKS */
 static void error_callback(int error_code, const char* description) {
-    std::print(stderr, "GLFW error %d: %s\n", error_code, description);
+    std::print(stderr, "GLFW error {}: {}\n", error_code, description);
 };
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {

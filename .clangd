@@ -1,6 +1,6 @@
 CompileFlags:
   Add:
-    - -I./include
-    - -I/home/tanner-davison/projects/cpp/tannery/include
+    - -I.core/include
+    - -I/home/tanner-davison/projects/cpp/tannery/core/include
     - -I/usr/include/vulkan
     - -std=c++23
