@@ -13,8 +13,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON) # Makes it Fail-Loudly instead of silently
 find_package(Vulkan REQUIRED)
 find_package(glfw3 REQUIRED)
 
-set(SOURCES core/src/main.cpp core/src/vulkanInstance.cpp
-            core/src/windowHandling.cpp core/src/physicalDevice.cpp)
+set(SOURCES
+    core/src/main.cpp core/src/vulkanInstance.cpp core/src/windowHandling.cpp
+    core/src/physicalDevice.cpp core/src/queueFamilies.cpp)
 # TARGETS
 # -------------------------------------------------------------------------------------------
 add_executable(${PROJECT_NAME} ${SOURCES})
