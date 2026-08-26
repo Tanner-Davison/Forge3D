@@ -63,3 +63,19 @@ VkPhysicalDevice getPhysicalDevice(VkInstance instance) {
 
     return devices[0];
 }
+
+// Debbugging only prints All devices does not return anything (SAFE TO DELETE)
+void printPhysicalDevices(VkInstance instance) {
+    uint32_t device_count = 0;
+    vkEnumeratePhysicalDevices(instance, &device_count, nullptr);
+    std::vector<VkPhysicalDevice> devices(device_count);
+    vkEnumeratePhysicalDevices(instance, &device_count, devices.data());
+    std::println("\n----All available Devices ----");
+    for (const auto& device : devices) {
+        VkPhysicalDeviceProperties2 properties2{};
+        properties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+        properties2.pNext = nullptr;
+        vkGetPhysicalDeviceProperties2(device, &properties2);
+        std::println("{}", properties2.properties.deviceName);
+    }
+}

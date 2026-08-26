@@ -25,8 +25,8 @@ int main(int argc, char** argv) {
     if (!window) {
         return 1;
     }
-    VkInstance vk_instance = createInstance("Tannery");
-    if (vk_instance == VK_NULL_HANDLE) {
+    VkInstance vkInstance = createInstance("Tannery");
+    if (vkInstance == VK_NULL_HANDLE) {
         cleanup(window, VK_NULL_HANDLE, VK_NULL_HANDLE);
         return 2;
     }
@@ -38,24 +38,26 @@ int main(int argc, char** argv) {
     VkDebugUtilsMessengerEXT debug_messenger = VK_NULL_HANDLE;
     /*--------------------------------------------------------*/
 
-    if (CreateDebugUtilsMessengerEXT(vk_instance, &debug_create_info, nullptr, &debug_messenger) !=
+    if (CreateDebugUtilsMessengerEXT(vkInstance, &debug_create_info, nullptr, &debug_messenger) !=
         VK_SUCCESS) {
         std::println(stderr, "Failed to set up runtime debug messenger!");
-        cleanup(window, vk_instance, VK_NULL_HANDLE);
+        cleanup(window, vkInstance, VK_NULL_HANDLE);
         return 4;
     }
     /* Get Physical Device */
-    VkPhysicalDevice physicalDevice = getPhysicalDevice(vk_instance);
+    VkPhysicalDevice physicalDevice = getPhysicalDevice(vkInstance);
 
     if (physicalDevice == VK_NULL_HANDLE) {
         std::println(stderr, "Failed to find a suitable physical device!");
-        cleanup(window, vk_instance, debug_messenger);
+        cleanup(window, vkInstance, debug_messenger);
         return 5;
     }
+
+    printPhysicalDevices(vkInstance);
     QueueFamilyIndices graphicsFamilyQueue = findQueueFamilies(physicalDevice);
     if (!graphicsFamilyQueue.graphicsFamily.has_value()) {
         std::println(stderr, "Error: No graphics family queue found!");
-        cleanup(window, vk_instance, debug_messenger);
+        cleanup(window, vkInstance, debug_messenger);
         return 6;
     }
     std::println("Queue family count: {}", graphicsFamilyQueue.familyCount);
@@ -65,7 +67,7 @@ int main(int argc, char** argv) {
         glfwPollEvents();
     }
 
-    cleanup(window, vk_instance, debug_messenger);
+    cleanup(window, vkInstance, debug_messenger);
 
     return 0;
 }

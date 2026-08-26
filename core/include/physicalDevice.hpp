@@ -2,3 +2,5 @@
 #include <vulkan/vulkan.h>
 
 VkPhysicalDevice getPhysicalDevice(VkInstance instance);
+
+void printPhysicalDevices(VkInstance instance);
