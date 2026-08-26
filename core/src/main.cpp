@@ -34,23 +34,23 @@ int main(int argc, char** argv) {
     VkDebugUtilsMessengerCreateInfoEXT debug_create_info{};
     populateDebugMessengerCreateInfo(debug_create_info);
 
-    /*Set to VK_NULL_HANDLE safe to destroy if not created -------------*/
+    /*Create debug messenger*/
     VkDebugUtilsMessengerEXT debug_messenger = VK_NULL_HANDLE;
-    /*--------------------------------------------------------*/
 
     if (CreateDebugUtilsMessengerEXT(vkInstance, &debug_create_info, nullptr, &debug_messenger) !=
         VK_SUCCESS) {
         std::println(stderr, "Failed to set up runtime debug messenger!");
         cleanup(window, vkInstance, VK_NULL_HANDLE);
-        return 4;
+        return 3;
     }
+
     /* Get Physical Device */
     VkPhysicalDevice physicalDevice = getPhysicalDevice(vkInstance);
 
     if (physicalDevice == VK_NULL_HANDLE) {
         std::println(stderr, "Failed to find a suitable physical device!");
         cleanup(window, vkInstance, debug_messenger);
-        return 5;
+        return 4;
     }
 
     printPhysicalDevices(vkInstance);
@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
     if (!graphicsFamilyQueue.graphicsFamily.has_value()) {
         std::println(stderr, "Error: No graphics family queue found!");
         cleanup(window, vkInstance, debug_messenger);
-        return 6;
+        return 5;
     }
     std::println("Queue family count: {}", graphicsFamilyQueue.familyCount);
     std::println("Graphics family Index: {}", graphicsFamilyQueue.graphicsFamily.value());
