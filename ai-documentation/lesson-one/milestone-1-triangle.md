@@ -1,0 +1,70 @@
+# Milestone 1: Hardcoded Triangle
+
+## Goal
+
+Get a single hardcoded triangle rendering on screen using raw Vulkan C API +
+GLFW. This exercises the full minimum pipeline: instance → physical device →
+logical device → surface/swapchain → render pass → graphics pipeline →
+framebuffers → command buffers → sync/present.
+
+## Lesson sequence
+
+1. **Project scaffolding** — `CMakeLists.txt` (find_package for Vulkan/glfw3),
+   `main.cpp` skeleton with a GLFW window and a bare render loop (no Vulkan
+   calls yet). Confirms the toolchain builds and runs before adding any
+   Vulkan complexity.
+2. **VkInstance** — the entry point object for the Vulkan library. Requires
+   `VkApplicationInfo` + `VkInstanceCreateInfo`, and the GLFW-required
+   extension list (`glfwGetRequiredInstanceExtensions`).
+3. **Validation layers** — `VK_LAYER_KHRONOS_validation`, debug messenger,
+   why they matter (Vulkan does almost no error checking by design — the
+   validation layer is where those checks actually live during development).
+4. **Physical device + logical device** — enumerating GPUs
+   (`vkEnumeratePhysicalDevices`), picking one, querying queue families,
+   creating a `VkDevice` and retrieving queue handles.
+5. **Surface + swapchain** — `VkSurfaceKHR` (GLFW-created), swapchain
+   capabilities/formats/present modes, `VkSwapchainKHR` creation.
+6. **Image views + render pass** — how the swapchain images get wrapped for
+   use as render targets, and how a render pass describes attachments and
+   subpasses.
+7. **Graphics pipeline** — shader modules (compiled via `glslang-tools`),
+   fixed-function state (vertex input, input assembly, viewport/scissor,
+   rasterizer, multisampling, color blending), pipeline layout.
+8. **Framebuffers + command buffers** — binding image views to a render
+   pass, recording draw commands into a command buffer.
+9. **Render loop + sync** — semaphores/fences, `vkAcquireNextImageKHR`,
+   `vkQueueSubmit`, `vkQueuePresentKHR`.
+
+## Reference material
+
+- The Vulkan Tutorial (https://vulkan-tutorial.com/) — the canonical
+  step-by-step walkthrough this milestone loosely follows in raw C API
+  style.
+- Vulkan Spec / Registry (https://registry.khronos.org/vulkan/) — the
+  authoritative source for every struct and function signature.
+- GLFW docs (https://www.glfw.org/documentation.html) — window/surface
+  creation, input, required-extension query.
+- `vulkaninfo` (already installed) — inspect what your actual GPU/driver
+  exposes (extensions, queue families, formats).
+
+## Status
+
+- [x] Step 1 — project scaffolding (now split into `src/` + `include/`)
+- [x] Step 2 — `VkInstance` (app info, extensions, create/destroy)
+- [x] Step 3 — validation layers (`VK_LAYER_KHRONOS_validation`, debug
+      messenger chained into instance create/destroy via `pNext`, proxy
+      loaders for the extension functions)
+- [x] Step 4 — physical device selection (`physicalDevice.cpp`, `queueFamilies.cpp`)
+- [x] Step 5 — logical device + queues (`logicalDevice.cpp`: `VkDeviceQueueCreateInfo` →
+      `VkDeviceCreateInfo` → `vkCreateDevice`, `vkGetDeviceQueue`; destroy-order bug
+      caught in `cleanup.hpp` — device must be destroyed before instance)
+- [x] Step 6 — window surface (`surface.cpp`: `glfwCreateWindowSurface`; extended
+      `queueFamilies.cpp` with `presentFamilyIndex` + `isComplete()`, and
+      `logicalDevice.cpp` to dedupe graphics/present family indices via
+      `std::set<uint32_t>` before building `VkDeviceQueueCreateInfo` entries —
+      RTX 3090 reports both indices as `0`)
+- [ ] Step 7 — swapchain *(current)*
+- [ ] Step 8 — image views + render pass
+- [ ] Step 9 — graphics pipeline
+- [ ] Step 10 — framebuffers + command buffers
+- [ ] Step 11 — render loop + sync
