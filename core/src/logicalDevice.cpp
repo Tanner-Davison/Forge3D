@@ -15,13 +15,19 @@ LogicalDeviceInfo createLogicalDevice(VkPhysicalDevice pPhysicalDevice, QueueFam
         .queueCount       = 1,
         .pQueuePriorities = queuePriorities.data(),
     };
+    // FUTUE: std::vector<VkDeviceQueueCreateInfo> queueCreateInfos = { graphicsQueueInfo, presentQueueInfo };
 
     VkDeviceCreateInfo deviceInfo{
-        .sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
-        .pNext                   = nullptr,
-        .flags                   = 0,
-        .queueCreateInfoCount    = 1,
-        .pQueueCreateInfos       = &createInfoQueue,
+        .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = 0,
+        // =========================
+        // FUTURE ME will add more info into the queueCreateInfos
+        .queueCreateInfoCount = 1,
+        .pQueueCreateInfos    = &createInfoQueue,
+        // deviceInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size()); // 2
+        // deviceInfo.pQueueCreateInfos    = queueCreateInfos.data();
+        // =========================
         .enabledLayerCount       = 0,
         .ppEnabledLayerNames     = nullptr,
         .enabledExtensionCount   = 0,
