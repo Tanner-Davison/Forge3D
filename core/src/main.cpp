@@ -3,6 +3,7 @@
 #include "logicalDevice.hpp"
 #include "physicalDevice.hpp"
 #include "queueFamilies.hpp"
+#include "surface.hpp"
 #include "vulkanInstance.hpp"
 #include "windowHandling.hpp"
 #include <GLFW/glfw3.h>
@@ -14,58 +15,64 @@ int main(int argc, char** argv) {
     if (!window) {
         return 1;
     }
-    VkInstance vkInstance = createInstance("Tannery");
-    if (vkInstance == VK_NULL_HANDLE) {
-        cleanup(window, VK_NULL_HANDLE, VK_NULL_HANDLE, VK_NULL_HANDLE);
+    VkInstance instance = createInstance("Tannery");
+    if (instance == VK_NULL_HANDLE) {
+        cleanup(window, VK_NULL_HANDLE, VK_NULL_HANDLE, VK_NULL_HANDLE, VK_NULL_HANDLE);
         return 2;
     }
 
     VkDebugUtilsMessengerCreateInfoEXT debug_create_info{};
     populateDebugMessengerCreateInfo(debug_create_info);
 
-    /*Create debug messenger*/
+    /*CREATE DEBUG MESSENGER*/
     VkDebugUtilsMessengerEXT debug_messenger = VK_NULL_HANDLE;
 
-    if (CreateDebugUtilsMessengerEXT(vkInstance, &debug_create_info, nullptr, &debug_messenger) !=
-        VK_SUCCESS) {
+    if (CreateDebugUtilsMessengerEXT(instance, &debug_create_info, nullptr, &debug_messenger) != VK_SUCCESS) {
         std::println(stderr, "Failed to set up runtime debug messenger!");
-        cleanup(window, vkInstance, VK_NULL_HANDLE, VK_NULL_HANDLE);
+        cleanup(window, instance, VK_NULL_HANDLE, VK_NULL_HANDLE, VK_NULL_HANDLE);
         return 3;
     }
 
-    /* Get Physical Device */
-    VkPhysicalDevice physicalDevice = getPhysicalDevice(vkInstance);
-
+    /* GET PHYSICAL DEVICE */
+    VkPhysicalDevice physicalDevice = getPhysicalDevice(instance);
     if (physicalDevice == VK_NULL_HANDLE) {
         std::println(stderr, "Failed to find a suitable physical device!");
-        cleanup(window, vkInstance, debug_messenger, VK_NULL_HANDLE);
+        cleanup(window, instance, debug_messenger, VK_NULL_HANDLE, VK_NULL_HANDLE);
         return 4;
     }
+    /* Uncomment to view all Physical Devices found:
+     * --------------------------------------------
+     * printPhysicalDevices(instance); */
 
-    printPhysicalDevices(vkInstance);
-
-    /*Queue Family Indices*/
-    QueueFamilyIndices graphicsFamilyQueue = findQueueFamilies(physicalDevice);
-    if (!graphicsFamilyQueue.graphicsFamilyIndex.has_value()) {
-        std::println(stderr, "Error: No graphics family queue found!");
-        cleanup(window, vkInstance, debug_messenger, VK_NULL_HANDLE);
+    /*CREATE WINDOW SURFACE*/
+    VkSurfaceKHR surface = getWindowSurface(instance, window);
+    if (surface == VK_NULL_HANDLE) {
+        std::println(stderr, "Error: Surface creation return a VK_NULL_HANDLE creation failed.");
         return 5;
     }
 
-    /*Logical Device Creation*/
+    /*QUEUE FAMILY INDICES*/
+    QueueFamilyIndices graphicsFamilyQueue = findQueueFamilies(physicalDevice);
+    if (!graphicsFamilyQueue.graphicsFamilyIndex.has_value()) {
+        std::println(stderr, "Error: No graphics family queue found!");
+        cleanup(window, instance, debug_messenger, VK_NULL_HANDLE, VK_NULL_HANDLE);
+        return 6;
+    }
+
+    /*LOGICAL DEVICE CREATION*/
     LogicalDeviceInfo logicalDeviceInfo(createLogicalDevice(physicalDevice, graphicsFamilyQueue));
 
     if (logicalDeviceInfo.logicalDevice == VK_NULL_HANDLE) {
         std::println(stderr, "Error: Failed to create logical device");
-        cleanup(window, vkInstance, debug_messenger, logicalDeviceInfo.logicalDevice);
-        return 6;
+        cleanup(window, instance, debug_messenger, logicalDeviceInfo.logicalDevice, VK_NULL_HANDLE);
+        return 7;
     }
 
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
     }
 
-    cleanup(window, vkInstance, debug_messenger, logicalDeviceInfo.logicalDevice);
+    cleanup(window, instance, debug_messenger, logicalDeviceInfo.logicalDevice, VK_NULL_HANDLE);
 
     return 0;
 }
