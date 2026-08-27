@@ -41,7 +41,7 @@ VkPhysicalDevice getPhysicalDevice(VkInstance instance) {
     std::println(" Vendor ID:\t{:#x}", properties2.properties.vendorID);
     std::println(" Device ID:\t{:#x}", properties2.properties.deviceID);
     // Uses vk_enum_string_helper.h
-    std::println(" Device Type:\t{}", string_VkPhysicalDeviceType(properties2.properties.deviceType));
+    std::println(" Device Type:\t{}\n", string_VkPhysicalDeviceType(properties2.properties.deviceType));
 
     return devices[0];
 }

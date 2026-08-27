@@ -2,7 +2,7 @@
 #include <print>
 #include <vector>
 
-QueueFamilyIndices findQueueFamilies(VkPhysicalDevice pPhysicalDevice) {
+QueueFamilyIndices findQueueFamilies(VkPhysicalDevice pPhysicalDevice, VkSurfaceKHR pSurface) {
     QueueFamilyIndices indices;
 
     uint32_t queueFamilyCount = 0;
@@ -18,7 +18,18 @@ QueueFamilyIndices findQueueFamilies(VkPhysicalDevice pPhysicalDevice) {
 
     for (uint32_t i = 0; i < queueFamilyCount; i++) {
         if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-            indices.graphicsFamilyIndex = i;
+            if (!indices.graphicsFamilyIndex.has_value()) {
+                indices.graphicsFamilyIndex = i;
+            }
+        }
+        VkBool32 presentSupport = VK_FALSE;
+        vkGetPhysicalDeviceSurfaceSupportKHR(pPhysicalDevice, i, pSurface, &presentSupport);
+        if (presentSupport) {
+            if (!indices.presentFamilyIndex.has_value()) {
+                indices.presentFamilyIndex = i;
+            }
+        }
+        if (indices.isComplete()) {
             break;
         }
     }
@@ -28,6 +39,11 @@ QueueFamilyIndices findQueueFamilies(VkPhysicalDevice pPhysicalDevice) {
         std::println("Graphics Family Index: {}", indices.graphicsFamilyIndex.value());
     } else {
         std::println("Graphics Family Index: not found");
+    }
+    if (indices.presentFamilyIndex.has_value()) {
+        std::println("Present Family Index: {}", indices.presentFamilyIndex.value());
+    } else {
+        std::println("Present Family Index: Not Found");
     }
     std::println("-------------------------------");
 

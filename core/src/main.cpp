@@ -48,13 +48,14 @@ int main(int argc, char** argv) {
     VkSurfaceKHR surface = getWindowSurface(instance, window);
     if (surface == VK_NULL_HANDLE) {
         std::println(stderr, "Error: Surface creation return a VK_NULL_HANDLE creation failed.");
+        cleanup(window, instance, debug_messenger, VK_NULL_HANDLE, VK_NULL_HANDLE);
         return 5;
     }
 
     /*QUEUE FAMILY INDICES*/
-    QueueFamilyIndices graphicsFamilyQueue = findQueueFamilies(physicalDevice);
-    if (!graphicsFamilyQueue.graphicsFamilyIndex.has_value()) {
-        std::println(stderr, "Error: No graphics family queue found!");
+    QueueFamilyIndices graphicsFamilyQueue = findQueueFamilies(physicalDevice, surface);
+    if (!graphicsFamilyQueue.isComplete()) {
+        std::println(stderr, "Error: Missing Graphics Family OR Present family index!");
         cleanup(window, instance, debug_messenger, VK_NULL_HANDLE, VK_NULL_HANDLE);
         return 6;
     }
