@@ -1,4 +1,6 @@
+#include "cleanup.hpp"
 #include "debugCallbackVulkan.hpp"
+#include "logicalDevice.hpp"
 #include "physicalDevice.hpp"
 #include "queueFamilies.hpp"
 #include "vulkanInstance.hpp"
@@ -7,19 +9,6 @@
 #include <print>
 #include <vulkan/vulkan.h>
 
-void cleanup(GLFWwindow* window, VkInstance instance, VkDebugUtilsMessengerEXT messenger) {
-    if (messenger != VK_NULL_HANDLE) {
-        DestroyDebugUtilsMessengerEXT(instance, messenger, nullptr);
-    }
-    if (instance != VK_NULL_HANDLE) {
-        vkDestroyInstance(instance, nullptr);
-    }
-    if (window != nullptr) {
-        glfwDestroyWindow(window);
-    }
-    glfwTerminate();
-}
-
 int main(int argc, char** argv) {
     GLFWwindow* window = createWindow(800, 600, "Tannery");
     if (!window) {
@@ -27,7 +16,7 @@ int main(int argc, char** argv) {
     }
     VkInstance vkInstance = createInstance("Tannery");
     if (vkInstance == VK_NULL_HANDLE) {
-        cleanup(window, VK_NULL_HANDLE, VK_NULL_HANDLE);
+        cleanup(window, VK_NULL_HANDLE, VK_NULL_HANDLE, VK_NULL_HANDLE);
         return 2;
     }
 
@@ -40,7 +29,7 @@ int main(int argc, char** argv) {
     if (CreateDebugUtilsMessengerEXT(vkInstance, &debug_create_info, nullptr, &debug_messenger) !=
         VK_SUCCESS) {
         std::println(stderr, "Failed to set up runtime debug messenger!");
-        cleanup(window, vkInstance, VK_NULL_HANDLE);
+        cleanup(window, vkInstance, VK_NULL_HANDLE, VK_NULL_HANDLE);
         return 3;
     }
 
@@ -49,26 +38,34 @@ int main(int argc, char** argv) {
 
     if (physicalDevice == VK_NULL_HANDLE) {
         std::println(stderr, "Failed to find a suitable physical device!");
-        cleanup(window, vkInstance, debug_messenger);
+        cleanup(window, vkInstance, debug_messenger, VK_NULL_HANDLE);
         return 4;
     }
 
     printPhysicalDevices(vkInstance);
+
+    /*Queue Family Indices*/
     QueueFamilyIndices graphicsFamilyQueue = findQueueFamilies(physicalDevice);
-    if (!graphicsFamilyQueue.graphicsFamily.has_value()) {
+    if (!graphicsFamilyQueue.graphicsFamilyIndex.has_value()) {
         std::println(stderr, "Error: No graphics family queue found!");
-        cleanup(window, vkInstance, debug_messenger);
+        cleanup(window, vkInstance, debug_messenger, VK_NULL_HANDLE);
         return 5;
     }
-    std::println("Family Queue Information:");
-    std::println("Queue Family Count: {}", graphicsFamilyQueue.familyCount);
-    std::println("Graphics Family Index: {}", graphicsFamilyQueue.graphicsFamily.value());
+
+    /*Logical Device Creation*/
+    LogicalDeviceInfo logicalDeviceInfo(createLogicalDevice(physicalDevice, graphicsFamilyQueue));
+
+    if (logicalDeviceInfo.logicalDevice == VK_NULL_HANDLE) {
+        std::println(stderr, "Error: Failed to create logical device");
+        cleanup(window, vkInstance, debug_messenger, logicalDeviceInfo.logicalDevice);
+        return 6;
+    }
 
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
     }
 
-    cleanup(window, vkInstance, debug_messenger);
+    cleanup(window, vkInstance, debug_messenger, logicalDeviceInfo.logicalDevice);
 
     return 0;
 }

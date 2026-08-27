@@ -3,8 +3,7 @@
 #include <vulkan/vulkan.h>
 
 struct QueueFamilyIndices {
-    std::optional<uint32_t> graphicsFamily;
-    uint32_t                familyCount;
+    std::optional<uint32_t> graphicsFamilyIndex;
 };
 
-QueueFamilyIndices findQueueFamilies(VkPhysicalDevice physicalDevice);
+QueueFamilyIndices findQueueFamilies(VkPhysicalDevice pPhysicalDevice);

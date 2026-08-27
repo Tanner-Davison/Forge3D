@@ -15,7 +15,8 @@ find_package(glfw3 REQUIRED)
 
 set(SOURCES
     core/src/main.cpp core/src/vulkanInstance.cpp core/src/windowHandling.cpp
-    core/src/physicalDevice.cpp core/src/queueFamilies.cpp)
+    core/src/physicalDevice.cpp core/src/queueFamilies.cpp
+    core/src/logicalDevice.cpp)
 # TARGETS
 # -------------------------------------------------------------------------------------------
 add_executable(${PROJECT_NAME} ${SOURCES})

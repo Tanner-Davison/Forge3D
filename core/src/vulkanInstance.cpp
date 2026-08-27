@@ -39,11 +39,11 @@ VkInstance createInstance(const char* appName) {
 #endif
 
     /*Print Active Extensions*/
-    std::print("Active Extensions:\n");
+    std::println("Active Extensions:");
     for (const auto& ext : extensions_with_debug_utils) {
-        std::print("  {}\n", ext);
+        std::println("  {}", ext);
     }
-    std::print("\n");
+    std::println("\n");
 
     const char* layers[] = {"VK_LAYER_KHRONOS_validation"};
 
