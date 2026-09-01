@@ -14,7 +14,7 @@ NamespaceIndentation: None
 IndentCaseLabels: true
 IndentPPDirectives: BeforeHash
 IndentWrappedFunctionNames: false
-ColumnLimit: 110
+ColumnLimit: 95
 
 # --- Alignment (this is most of what makes it "look clean") ---
 AlignAfterOpenBracket: Align
@@ -42,6 +42,7 @@ AlwaysBreakBeforeMultilineStrings: true
 AlwaysBreakTemplateDeclarations: Yes
 BinPackArguments: false
 BinPackParameters: false
+AllowAllArgumentsOnNextLine: false
 BreakBeforeBinaryOperators: None
 BreakBeforeTernaryOperators: true
 BreakStringLiterals: true
