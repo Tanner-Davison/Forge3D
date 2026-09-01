@@ -29,7 +29,10 @@ int main(int argc, char** argv) {
     /*CREATE DEBUG MESSENGER*/
     VkDebugUtilsMessengerEXT debug_messenger = VK_NULL_HANDLE;
 
-    if (CreateDebugUtilsMessengerEXT(instance, &debug_create_info, nullptr, &debug_messenger) != VK_SUCCESS) {
+    if (CreateDebugUtilsMessengerEXT(instance,
+                                     &debug_create_info,
+                                     nullptr,
+                                     &debug_messenger) != VK_SUCCESS) {
         std::println(stderr, "Failed to set up runtime debug messenger!");
         cleanup(window, instance, VK_NULL_HANDLE, VK_NULL_HANDLE, VK_NULL_HANDLE);
         return 3;
@@ -50,7 +53,8 @@ int main(int argc, char** argv) {
     VkSurfaceKHR surface = getWindowSurface(instance, window);
 
     if (surface == VK_NULL_HANDLE) {
-        std::println(stderr, "Error: Surface creation return a VK_NULL_HANDLE creation failed.");
+        std::println(stderr,
+                     "Error: Surface creation return a VK_NULL_HANDLE creation failed.");
         cleanup(window, instance, debug_messenger, VK_NULL_HANDLE, VK_NULL_HANDLE);
         return 5;
     }
@@ -59,17 +63,22 @@ int main(int argc, char** argv) {
     QueueFamilyIndices graphicsFamilyQueue = findQueueFamilies(physicalDevice, surface);
 
     if (!graphicsFamilyQueue.isComplete()) {
-        std::println(stderr, "Error: Missing Graphics Family OR Present family index!");
+        std::println(stderr, "Error: Missing Graphics Family or Present family index!");
         cleanup(window, instance, debug_messenger, VK_NULL_HANDLE, VK_NULL_HANDLE);
         return 6;
     }
 
     /*LOGICAL DEVICE CREATION*/
-    LogicalDeviceInfo logicalDeviceInfo(createLogicalDevice(physicalDevice, graphicsFamilyQueue));
+    LogicalDeviceInfo logicalDeviceInfo(
+        createLogicalDevice(physicalDevice, graphicsFamilyQueue));
 
     if (logicalDeviceInfo.logicalDevice == VK_NULL_HANDLE) {
         std::println(stderr, "Error: Failed to create logical device");
-        cleanup(window, instance, debug_messenger, logicalDeviceInfo.logicalDevice, VK_NULL_HANDLE);
+        cleanup(window,
+                instance,
+                debug_messenger,
+                logicalDeviceInfo.logicalDevice,
+                VK_NULL_HANDLE);
         return 7;
     }
 
@@ -77,7 +86,11 @@ int main(int argc, char** argv) {
         glfwPollEvents();
     }
 
-    cleanup(window, instance, debug_messenger, logicalDeviceInfo.logicalDevice, VK_NULL_HANDLE);
+    cleanup(window,
+            instance,
+            debug_messenger,
+            logicalDeviceInfo.logicalDevice,
+            VK_NULL_HANDLE);
 
     return 0;
 }
