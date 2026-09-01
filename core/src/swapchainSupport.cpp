@@ -7,9 +7,9 @@
  *
  */
 
-SwapchainSupportDetails getSwapchainSupportDetails(VkPhysicalDevice pPhysicalDevice,
-                                                   VkSurfaceKHR     pSurface) {
-    SwapchainSupportDetails swapchainDetails;
+SwapchainSupport getSwapchainSupportDetails(VkPhysicalDevice pPhysicalDevice,
+                                            VkSurfaceKHR     pSurface) {
+    SwapchainSupport swapchainDetails;
 
     /*CAPABILITIES*/
     VkResult capabilitiesRes =

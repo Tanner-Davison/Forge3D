@@ -122,6 +122,22 @@ anything (like a future swapchain) that was built from it.
 
 ---
 
+## vkEnumerateDeviceExtensionProperties
+
+**Category:** Logical Device / Extensions
+
+**What it does:** Two-call pattern function listing the extensions a given
+`VkPhysicalDevice` actually supports, as an array of `VkExtensionProperties`
+(each holding an `extensionName` and `specVersion`).
+
+**Why it matters here:** Device extensions like `VK_KHR_swapchain` must be
+verified as supported *before* being requested in `VkDeviceCreateInfo` —
+requesting one that isn't reported here makes `vkCreateDevice` fail with
+`VK_ERROR_EXTENSION_NOT_PRESENT`. Matched against each desired extension
+name via `strcmp`.
+
+---
+
 ## vkEnumeratePhysicalDevices
 
 **Category:** Physical Device

@@ -2,7 +2,7 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 
-struct SwapchainSupportDetails {
+struct SwapchainSupport {
     VkSurfaceCapabilitiesKHR        capabilities;
     std::vector<VkSurfaceFormatKHR> formats;
     std::vector<VkPresentModeKHR>   presentModes;
@@ -12,5 +12,5 @@ struct SwapchainSupportDetails {
     }
 };
 
-SwapchainSupportDetails getSwapchainSupportDetails(VkPhysicalDevice pPhysicalDevice,
-                                                   VkSurfaceKHR     pSurface);
+SwapchainSupport getSwapchainSupportDetails(VkPhysicalDevice pPhysicalDevice,
+                                            VkSurfaceKHR     pSurface);

@@ -1,4 +1,5 @@
 #include "logicalDevice.hpp"
+#include <cstring>
 #include <print>
 #include <set>
 #include <vector>
@@ -26,6 +27,55 @@ LogicalDeviceInfo createLogicalDevice(VkPhysicalDevice   pPhysicalDevice,
         queueCreateInfos.emplace_back(createInfoQueue);
     }
 
+    /*CHECK FOR EXTENSIONS COMPATIBILITY ON PHYSICAL DEVICE*/
+    uint32_t extensionCount = 0;
+    VkResult extensionRes   = vkEnumerateDeviceExtensionProperties(pPhysicalDevice,
+                                                                 nullptr,
+                                                                 &extensionCount,
+                                                                 nullptr);
+    if (extensionRes != VK_SUCCESS) {
+        std::println(stderr, "Error: Unable to enumerate device extension properties");
+        return info;
+    }
+    /*EXTENSIONS VECTOR*/
+    std::vector<VkExtensionProperties> extensions(extensionCount);
+    vkEnumerateDeviceExtensionProperties(pPhysicalDevice,
+                                         nullptr,
+                                         &extensionCount,
+                                         extensions.data());
+
+    bool driverPropertiesSupported   = false;
+    bool swapchainExtensionSupported = false;
+    bool canStop = driverPropertiesSupported && swapchainExtensionSupported;
+
+    /*Checking for support of VK_KHR_bind_memory2*/
+    for (uint32_t i = 0; i < extensionCount; i++) {
+        if (!driverPropertiesSupported) {
+            if (strcmp(VK_KHR_DRIVER_PROPERTIES_EXTENSION_NAME, extensions[i].extensionName) ==
+                0) {
+                driverPropertiesSupported =
+                    true; // DRIVER_PROPERTIES_EXTENSION_NAME is supported
+            };
+        }
+        if (!swapchainExtensionSupported) {
+            if (strcmp(VK_KHR_SWAPCHAIN_EXTENSION_NAME, extensions[i].extensionName) == 0) {
+                swapchainExtensionSupported = true; // SWAPCHAIN_EXTENSION_NAME is supported
+            }
+        }
+        canStop = driverPropertiesSupported && swapchainExtensionSupported;
+        if (canStop) {
+            break;
+        }
+    };
+
+    std::vector<const char*> deviceExtensions;
+    if (driverPropertiesSupported) {
+        deviceExtensions.push_back(VK_KHR_DRIVER_PROPERTIES_EXTENSION_NAME);
+    }
+    if (swapchainExtensionSupported) {
+        deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+    }
+
     VkDeviceCreateInfo deviceInfo{
         .sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
         .pNext                   = nullptr,
@@ -34,8 +84,8 @@ LogicalDeviceInfo createLogicalDevice(VkPhysicalDevice   pPhysicalDevice,
         .pQueueCreateInfos       = queueCreateInfos.data(),
         .enabledLayerCount       = 0,
         .ppEnabledLayerNames     = nullptr,
-        .enabledExtensionCount   = 0,
-        .ppEnabledExtensionNames = nullptr,
+        .enabledExtensionCount   = static_cast<uint32_t>(deviceExtensions.size()),
+        .ppEnabledExtensionNames = deviceExtensions.data(),
         .pEnabledFeatures        = &deviceFeatures,
 
     };

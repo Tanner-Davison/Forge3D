@@ -9,8 +9,8 @@
  * the Physical device is just the description of hardware*/
 
 VkPhysicalDevice getPhysicalDevice(VkInstance instance) {
-    uint32_t device_count = 0;
-    VkResult result       = vkEnumeratePhysicalDevices(instance, &device_count, nullptr);
+    uint32_t deviceCount = 0;
+    VkResult result      = vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
     // 1st check if driver function itself failed to load
     if (result != VK_SUCCESS) {
@@ -19,12 +19,12 @@ VkPhysicalDevice getPhysicalDevice(VkInstance instance) {
                      static_cast<int>(result));
         return VK_NULL_HANDLE;
     }
-    if (device_count == 0) {
+    if (deviceCount == 0) {
         std::println(stderr, "Error: No Physical devices with vulkan support were found");
         return VK_NULL_HANDLE;
     }
-    std::vector<VkPhysicalDevice> devices(device_count);
-    vkEnumeratePhysicalDevices(instance, &device_count, devices.data());
+    std::vector<VkPhysicalDevice> devices(deviceCount);
+    vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
     VkPhysicalDeviceProperties2 properties2{
         .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2,

@@ -115,6 +115,18 @@ them too, in the same reverse-of-creation-order pattern.
    not a failure signal — caught and removed before it could misfire on a
    real driver reporting that value.
 
+9. **Device extensions (`VK_KHR_swapchain`)** — unlike instance extensions
+   (`VK_EXT_debug_utils`), swapchain support is a *device* extension: it
+   must be requested per-logical-device via
+   `VkDeviceCreateInfo::ppEnabledExtensionNames`, since not every
+   Vulkan-capable device (e.g. a headless compute GPU) needs it. Verified
+   as actually supported first via `vkEnumerateDeviceExtensionProperties`
+   (same count-then-array shape as `vkEnumeratePhysicalDevices`), matching
+   each requested name with `strcmp` against every reported
+   `VkExtensionProperties::extensionName`, before adding it to the enabled
+   list — requesting an unsupported extension makes `vkCreateDevice` fail
+   with `VK_ERROR_EXTENSION_NOT_PRESENT`.
+
 **The "count, then array" convention** has now appeared four times
 (`glfwGetRequiredInstanceExtensions`, `vkEnumeratePhysicalDevices`,
 `vkGetPhysicalDeviceQueueFamilyProperties`, and implicitly in layer/extension
@@ -175,7 +187,13 @@ still ahead.
   Fixed with a `QueueFamilyIndices::isComplete()` helper and only breaking
   once every field being searched for actually has a value — a reminder that
   "it printed the right answer on my machine" isn't the same as "the logic
-  is correct."
+  is correct." Recurred a third time in the device-extension support check
+  (`logicalDevice.cpp`): a first draft used one shared `else { break; }` for
+  two independently-searched extension names, so a single non-matching
+  entry at any index aborted the search for *both* names at once. Fixed the
+  same way — an independent `if (!found)` guard per target, with the
+  combined early-exit condition re-evaluated inside the loop rather than
+  computed once beforehand.
 
 ## Environment-specific gotchas worth remembering
 
