@@ -4,6 +4,8 @@
 #include <set>
 #include <vector>
 
+#define VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME "VK_KHR_portability_subset"
+
 LogicalDeviceInfo createLogicalDevice(VkPhysicalDevice   pPhysicalDevice,
                                       QueueFamilyIndices familyIndices) {
     LogicalDeviceInfo info;
@@ -44,38 +46,47 @@ LogicalDeviceInfo createLogicalDevice(VkPhysicalDevice   pPhysicalDevice,
                                          &extensionCount,
                                          extensions.data());
 
+    /*ACTUAL DEVICE EXTENSION CREATION*/
+    std::vector<const char*> deviceExtensions;
+
     bool driverPropertiesSupported   = false;
     bool swapchainExtensionSupported = false;
-    bool canStop = driverPropertiesSupported && swapchainExtensionSupported;
+    bool portabilitySubsetSupported  = false;
+    bool canStop =
+        driverPropertiesSupported && swapchainExtensionSupported && portabilitySubsetSupported;
 
     /*Checking for support of VK_KHR_bind_memory2*/
     for (uint32_t i = 0; i < extensionCount; i++) {
-        if (!driverPropertiesSupported) {
+        if (!driverPropertiesSupported) { // CHECK DRIVER_PROPERTIES_is supported
             if (strcmp(VK_KHR_DRIVER_PROPERTIES_EXTENSION_NAME, extensions[i].extensionName) ==
                 0) {
-                driverPropertiesSupported =
-                    true; // DRIVER_PROPERTIES_EXTENSION_NAME is supported
+                driverPropertiesSupported = true;
+                deviceExtensions.push_back(VK_KHR_DRIVER_PROPERTIES_EXTENSION_NAME);
             };
         }
-        if (!swapchainExtensionSupported) {
+        if (!swapchainExtensionSupported) { // CHECK SWAPCHAIN_EXTENSION_NAME
             if (strcmp(VK_KHR_SWAPCHAIN_EXTENSION_NAME, extensions[i].extensionName) == 0) {
-                swapchainExtensionSupported = true; // SWAPCHAIN_EXTENSION_NAME is supported
+                swapchainExtensionSupported = true;
+                deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
             }
         }
-        canStop = driverPropertiesSupported && swapchainExtensionSupported;
+
+        if (!portabilitySubsetSupported) { // CHECK PORTABILITY_EXTENSIONS FOR MAC
+            if (strcmp(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME,
+                       extensions[i].extensionName) == 0) {
+                portabilitySubsetSupported = true;
+                deviceExtensions.push_back(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME);
+            }
+        }
+
+        canStop = driverPropertiesSupported && swapchainExtensionSupported &&
+                  portabilitySubsetSupported;
         if (canStop) {
             break;
-        }
-    };
+        };
+    }
 
-    /*ACTUAL DEVICE EXTENSION CREATION*/
-    std::vector<const char*> deviceExtensions;
-    if (driverPropertiesSupported) {
-        deviceExtensions.push_back(VK_KHR_DRIVER_PROPERTIES_EXTENSION_NAME);
-    }
-    if (swapchainExtensionSupported) {
-        deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-    }
+    /*Portability Extensions */
 
     /*CREATE DEVICE INFO*/
     VkDeviceCreateInfo logicalDeviceInfo{
