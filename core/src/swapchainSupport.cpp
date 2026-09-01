@@ -1,5 +1,4 @@
 #include "swapchainSupport.hpp"
-#include "vulkan_core.h"
 #include <print>
 
 /*
@@ -24,6 +23,8 @@ SwapchainSupportDetails getSwapchainSupportDetails(VkPhysicalDevice pPhysicalDev
     /*SURFACE FORMATS*/
     uint32_t formatCount = 0;
     vkGetPhysicalDeviceSurfaceFormatsKHR(pPhysicalDevice, pSurface, &formatCount, nullptr);
+
+    /*upates formats vector to correct size*/
     swapchainDetails.formats.resize(formatCount);
     VkResult formatRes = vkGetPhysicalDeviceSurfaceFormatsKHR(pPhysicalDevice,
                                                               pSurface,
@@ -39,7 +40,13 @@ SwapchainSupportDetails getSwapchainSupportDetails(VkPhysicalDevice pPhysicalDev
                                                                     pSurface,
                                                                     &presentModeCount,
                                                                     nullptr);
+    /*upates present modes vector to correct size*/
     swapchainDetails.presentModes.resize(presentModeCount);
+
+    vkGetPhysicalDeviceSurfacePresentModesKHR(pPhysicalDevice,
+                                              pSurface,
+                                              &presentModeCount,
+                                              swapchainDetails.presentModes.data());
     if (presentRes != VK_SUCCESS) {
         std::println(stderr, "Error: Could not find present modes count");
     }

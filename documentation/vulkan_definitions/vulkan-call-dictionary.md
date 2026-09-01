@@ -211,6 +211,36 @@ the three swapchain-support queries.
 
 ---
 
+## vkGetPhysicalDeviceSurfaceFormatsKHR
+
+**Category:** Swapchain / WSI
+
+**What it does:** Two-call pattern function (query count, then fill array)
+returning the list of `(VkFormat, VkColorSpaceKHR)` pairs a given surface
+can actually present on a given physical device.
+
+**Why it matters here:** You don't get to request an arbitrary pixel format
+for the swapchain — you pick one from whatever this call reports the
+surface actually supports. Populates `SwapchainSupportDetails::formats`.
+
+---
+
+## vkGetPhysicalDeviceSurfacePresentModesKHR
+
+**Category:** Swapchain / WSI
+
+**What it does:** Two-call pattern function returning the list of
+`VkPresentModeKHR` values (`FIFO`, `MAILBOX`, `IMMEDIATE`, `FIFO_RELAXED`) a
+surface supports for handing finished images to the display.
+
+**Why it matters here:** Present mode is what actually controls
+vsync/tearing behavior later. `VK_PRESENT_MODE_FIFO_KHR` is the only mode
+the spec *guarantees* exists everywhere — anything else must be confirmed
+present in this list before it's requested. Populates
+`SwapchainSupportDetails::presentModes`.
+
+---
+
 ## vkGetPhysicalDeviceSurfaceSupportKHR
 
 **Category:** Queue Families / WSI

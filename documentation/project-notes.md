@@ -98,6 +98,23 @@ them too, in the same reverse-of-creation-order pattern.
    `graphicsQueue` and `presentQueue` afterward (which may be the same
    handle, or may not, depending on hardware).
 
+8. **Swapchain support querying (`SwapchainSupportDetails`)** — before a
+   `VkSwapchainKHR` can be created, three properties of the
+   `(VkPhysicalDevice, VkSurfaceKHR)` pair must be queried:
+   `vkGetPhysicalDeviceSurfaceCapabilitiesKHR` (a single struct fill, *not*
+   count-then-array — there's exactly one capabilities struct, never an
+   array), `vkGetPhysicalDeviceSurfaceFormatsKHR`, and
+   `vkGetPhysicalDeviceSurfacePresentModesKHR` (both back to the familiar
+   count-then-array shape). Mirrors `QueueFamilyIndices`'s design: a struct
+   (`SwapchainSupportDetails`) holding all three results plus an
+   `isComplete()` helper — though unlike queue families, `isComplete()`
+   here only checks `formats`/`presentModes` non-empty, since `capabilities`
+   is a single struct with no natural "empty" state. An early draft
+   mistakenly gated completeness on `capabilities.maxImageCount > 0`, but
+   `maxImageCount == 0` is a *valid* spec value meaning "no upper limit,"
+   not a failure signal — caught and removed before it could misfire on a
+   real driver reporting that value.
+
 **The "count, then array" convention** has now appeared four times
 (`glfwGetRequiredInstanceExtensions`, `vkEnumeratePhysicalDevices`,
 `vkGetPhysicalDeviceQueueFamilyProperties`, and implicitly in layer/extension
@@ -192,5 +209,8 @@ still ahead.
 Milestone 1 (hardcoded triangle) progress — see `lesson-one/milestone-1-triangle.md`
 for the full step list. As of this note: instance, validation layers, physical
 device + queue family selection, window surface creation, present-family
-detection, and logical device + deduplicated graphics/present queue creation
-are all done. Swapchain creation (Step 7) is next.
+detection, logical device + deduplicated graphics/present queue creation, and
+swapchain support querying (capabilities/formats/present modes) are all done.
+Still ahead within Step 7: enabling the `VK_KHR_swapchain` device extension,
+choosing a format/present mode/extent from the queried support details, and
+creating the actual `VkSwapchainKHR`.
