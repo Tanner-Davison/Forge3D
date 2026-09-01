@@ -14,8 +14,9 @@ VkPhysicalDevice getPhysicalDevice(VkInstance instance) {
 
     // 1st check if driver function itself failed to load
     if (result != VK_SUCCESS) {
-        std::println(
-            stderr, "Error: Failed to enumerate physical devices. VkResult: {}", static_cast<int>(result));
+        std::println(stderr,
+                     "Error: Failed to enumerate physical devices. VkResult: {}",
+                     static_cast<int>(result));
         return VK_NULL_HANDLE;
     }
     if (device_count == 0) {
@@ -25,8 +26,9 @@ VkPhysicalDevice getPhysicalDevice(VkInstance instance) {
     std::vector<VkPhysicalDevice> devices(device_count);
     vkEnumeratePhysicalDevices(instance, &device_count, devices.data());
 
-    VkPhysicalDeviceProperties2 properties2{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2,
-                                            .pNext = nullptr};
+    VkPhysicalDeviceProperties2 properties2{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2,
+        .pNext = nullptr};
 
     vkGetPhysicalDeviceProperties2(devices[0], &properties2);
 
@@ -41,7 +43,8 @@ VkPhysicalDevice getPhysicalDevice(VkInstance instance) {
     std::println(" Vendor ID:\t{:#x}", properties2.properties.vendorID);
     std::println(" Device ID:\t{:#x}", properties2.properties.deviceID);
     // Uses vk_enum_string_helper.h
-    std::println(" Device Type:\t{}\n", string_VkPhysicalDeviceType(properties2.properties.deviceType));
+    std::println(" Device Type:\t{}\n",
+                 string_VkPhysicalDeviceType(properties2.properties.deviceType));
 
     return devices[0];
 }
@@ -54,8 +57,9 @@ void printPhysicalDevices(VkInstance instance) {
     vkEnumeratePhysicalDevices(instance, &device_count, devices.data());
     std::println("\n------| Devices Found |------");
     for (const auto& device : devices) {
-        VkPhysicalDeviceProperties2 properties2{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2,
-                                                .pNext = nullptr};
+        VkPhysicalDeviceProperties2 properties2{
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2,
+            .pNext = nullptr};
         vkGetPhysicalDeviceProperties2(device, &properties2);
         std::println("{}", properties2.properties.deviceName);
     }

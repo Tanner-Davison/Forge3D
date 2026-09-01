@@ -4,10 +4,11 @@
 #include <vulkan/vulkan.h>
 
 // 1. The inline callback function
-inline VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                                                    VkDebugUtilsMessageTypeFlagsEXT        messageType,
-                                                    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-                                                    void*                                       pUserData) {
+inline VKAPI_ATTR VkBool32 VKAPI_CALL
+debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
+              VkDebugUtilsMessageTypeFlagsEXT             messageType,
+              const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+              void*                                       pUserData) {
     // Filter out verbose and info messages early
     if (messageSeverity < VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
         return VK_FALSE;
@@ -44,12 +45,14 @@ inline void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT&
 }
 
 // 3. Proxy function to safely load and call vkCreateDebugUtilsMessengerEXT
-inline VkResult CreateDebugUtilsMessengerEXT(VkInstance                                instance,
-                                             const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
-                                             const VkAllocationCallbacks*              pAllocator,
-                                             VkDebugUtilsMessengerEXT*                 pDebugMessenger) {
-    auto func =
-        (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+inline VkResult CreateDebugUtilsMessengerEXT(
+    VkInstance                                instance,
+    const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+    const VkAllocationCallbacks*              pAllocator,
+    VkDebugUtilsMessengerEXT*                 pDebugMessenger) {
+    auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
+        instance,
+        "vkCreateDebugUtilsMessengerEXT");
     if (func != nullptr) {
         return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
     } else {
@@ -61,8 +64,9 @@ inline VkResult CreateDebugUtilsMessengerEXT(VkInstance                         
 inline void DestroyDebugUtilsMessengerEXT(VkInstance                   instance,
                                           VkDebugUtilsMessengerEXT     debugMessenger,
                                           const VkAllocationCallbacks* pAllocator) {
-    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance,
-                                                                           "vkDestroyDebugUtilsMessengerEXT");
+    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
+        instance,
+        "vkDestroyDebugUtilsMessengerEXT");
     if (func != nullptr) {
         func(instance, debugMessenger, pAllocator);
     }

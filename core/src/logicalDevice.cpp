@@ -3,7 +3,8 @@
 #include <set>
 #include <vector>
 
-LogicalDeviceInfo createLogicalDevice(VkPhysicalDevice pPhysicalDevice, QueueFamilyIndices familyIndices) {
+LogicalDeviceInfo createLogicalDevice(VkPhysicalDevice   pPhysicalDevice,
+                                      QueueFamilyIndices familyIndices) {
     LogicalDeviceInfo info;
     // This Variable needs to stick around and unmodified until vkCreateDevice actually runs
     const std::vector<float> queuePriorities(1, 1.0f); //|
@@ -39,14 +40,21 @@ LogicalDeviceInfo createLogicalDevice(VkPhysicalDevice pPhysicalDevice, QueueFam
     };
 
     /* Attempting to create Logical Device */
-    VkResult res = vkCreateDevice(pPhysicalDevice, &deviceInfo, VK_NULL_HANDLE, &info.logicalDevice);
+    VkResult res =
+        vkCreateDevice(pPhysicalDevice, &deviceInfo, VK_NULL_HANDLE, &info.logicalDevice);
     if (res != VK_SUCCESS) {
         std::println("Error: Could Not Create Logical Device");
         return info;
     }
 
-    vkGetDeviceQueue(info.logicalDevice, familyIndices.graphicsFamilyIndex.value(), 0, &info.graphicsQueue);
-    vkGetDeviceQueue(info.logicalDevice, familyIndices.presentFamilyIndex.value(), 0, &info.presentQueue);
+    vkGetDeviceQueue(info.logicalDevice,
+                     familyIndices.graphicsFamilyIndex.value(),
+                     0,
+                     &info.graphicsQueue);
+    vkGetDeviceQueue(info.logicalDevice,
+                     familyIndices.presentFamilyIndex.value(),
+                     0,
+                     &info.presentQueue);
 
     return info;
 };

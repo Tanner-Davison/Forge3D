@@ -8,4 +8,5 @@ struct LogicalDeviceInfo {
     VkQueue  presentQueue  = VK_NULL_HANDLE;
 };
 
-LogicalDeviceInfo createLogicalDevice(VkPhysicalDevice pPhysicalDevice, QueueFamilyIndices familyIndices);
+LogicalDeviceInfo createLogicalDevice(VkPhysicalDevice   pPhysicalDevice,
+                                      QueueFamilyIndices familyIndices);

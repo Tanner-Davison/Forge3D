@@ -9,7 +9,9 @@ QueueFamilyIndices findQueueFamilies(VkPhysicalDevice pPhysicalDevice, VkSurface
     vkGetPhysicalDeviceQueueFamilyProperties(pPhysicalDevice, &queueFamilyCount, nullptr);
 
     std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-    vkGetPhysicalDeviceQueueFamilyProperties(pPhysicalDevice, &queueFamilyCount, queueFamilies.data());
+    vkGetPhysicalDeviceQueueFamilyProperties(pPhysicalDevice,
+                                             &queueFamilyCount,
+                                             queueFamilies.data());
 
     if (queueFamilies.empty()) {
         std::println(stderr, "Error: No queue families found!");

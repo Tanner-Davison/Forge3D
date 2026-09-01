@@ -12,4 +12,5 @@ struct SwapchainSupportDetails {
     }
 };
 
-SwapchainSupportDetails getSwapchainSupportDetails(VkPhysicalDevice pPhysicalDevice, VkSurfaceKHR pSurface);
+SwapchainSupportDetails getSwapchainSupportDetails(VkPhysicalDevice pPhysicalDevice,
+                                                   VkSurfaceKHR     pSurface);
