@@ -68,6 +68,7 @@ LogicalDeviceInfo createLogicalDevice(VkPhysicalDevice   pPhysicalDevice,
         }
     };
 
+    /*ACTUAL DEVICE EXTENSION CREATION*/
     std::vector<const char*> deviceExtensions;
     if (driverPropertiesSupported) {
         deviceExtensions.push_back(VK_KHR_DRIVER_PROPERTIES_EXTENSION_NAME);
@@ -76,7 +77,8 @@ LogicalDeviceInfo createLogicalDevice(VkPhysicalDevice   pPhysicalDevice,
         deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
     }
 
-    VkDeviceCreateInfo deviceInfo{
+    /*CREATE DEVICE INFO*/
+    VkDeviceCreateInfo logicalDeviceInfo{
         .sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
         .pNext                   = nullptr,
         .flags                   = 0,
@@ -91,8 +93,10 @@ LogicalDeviceInfo createLogicalDevice(VkPhysicalDevice   pPhysicalDevice,
     };
 
     /* CREATE LOGICAL DEVICE */
-    VkResult res =
-        vkCreateDevice(pPhysicalDevice, &deviceInfo, VK_NULL_HANDLE, &info.logicalDevice);
+    VkResult res = vkCreateDevice(pPhysicalDevice,
+                                  &logicalDeviceInfo,
+                                  VK_NULL_HANDLE,
+                                  &info.logicalDevice);
     if (res != VK_SUCCESS) {
         std::println("Error: Could Not Create Logical Device");
         return info;
