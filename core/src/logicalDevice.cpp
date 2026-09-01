@@ -46,14 +46,19 @@ LogicalDeviceInfo createLogicalDevice(VkPhysicalDevice   pPhysicalDevice,
                                          &extensionCount,
                                          extensions.data());
 
-    /*ACTUAL DEVICE EXTENSION CREATION*/
+    /*DEVICE EXTENSIONS CHECK*/
     std::vector<const char*> deviceExtensions;
 
     bool driverPropertiesSupported   = false;
     bool swapchainExtensionSupported = false;
     bool portabilitySubsetSupported  = false;
+
+#ifdef __APPLE__
     bool canStop =
         driverPropertiesSupported && swapchainExtensionSupported && portabilitySubsetSupported;
+#endif
+
+    bool canStop = driverPropertiesSupported && swapchainExtensionSupported;
 
     /*Checking for support of VK_KHR_bind_memory2*/
     for (uint32_t i = 0; i < extensionCount; i++) {
@@ -70,7 +75,7 @@ LogicalDeviceInfo createLogicalDevice(VkPhysicalDevice   pPhysicalDevice,
                 deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
             }
         }
-
+#ifdef __APPLE__
         if (!portabilitySubsetSupported) { // CHECK PORTABILITY_EXTENSIONS FOR MAC
             if (strcmp(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME,
                        extensions[i].extensionName) == 0) {
@@ -79,16 +84,22 @@ LogicalDeviceInfo createLogicalDevice(VkPhysicalDevice   pPhysicalDevice,
             }
         }
 
+#endif
+
+        canStop = driverPropertiesSupported && swapchainExtensionSupported;
+
+#ifdef __APPLE__
+
         canStop = driverPropertiesSupported && swapchainExtensionSupported &&
                   portabilitySubsetSupported;
+#endif
+
         if (canStop) {
             break;
         };
     }
 
-    /*Portability Extensions */
-
-    /*CREATE DEVICE INFO*/
+    /*CREATE DEVICE INFO WITH EXTENSIONS*/
     VkDeviceCreateInfo logicalDeviceInfo{
         .sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
         .pNext                   = nullptr,

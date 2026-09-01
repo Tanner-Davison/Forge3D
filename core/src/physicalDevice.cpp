@@ -1,7 +1,6 @@
 #include "physicalDevice.hpp"
 #include "vk_enum_string_helper.h"
 #include <cstdint>
-#include <cstring>
 #include <print>
 #include <vector>
 #include <vulkan/vulkan.h>
