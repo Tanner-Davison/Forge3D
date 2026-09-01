@@ -7,7 +7,7 @@ LogicalDeviceInfo createLogicalDevice(VkPhysicalDevice   pPhysicalDevice,
                                       QueueFamilyIndices familyIndices) {
     LogicalDeviceInfo info;
     // This Variable needs to stick around and unmodified until vkCreateDevice actually runs
-    const std::vector<float> queuePriorities(1, 1.0f); //|
+    const std::vector<float> queuePriorities(1, 1.0f);
 
     VkPhysicalDeviceFeatures deviceFeatures{};
 
