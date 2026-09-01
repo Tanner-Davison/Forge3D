@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
     if (surface == VK_NULL_HANDLE) {
         std::println(stderr,
                      "Error: Surface creation return a VK_NULL_HANDLE creation failed.");
-        cleanup(window, instance, debug_messenger, VK_NULL_HANDLE, VK_NULL_HANDLE);
+        cleanup(window, instance, debug_messenger, VK_NULL_HANDLE, surface);
         return 5;
     }
 
@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
 
     if (!graphicsFamilyQueue.isComplete()) {
         std::println(stderr, "Error: Missing Graphics Family or Present family index!");
-        cleanup(window, instance, debug_messenger, VK_NULL_HANDLE, VK_NULL_HANDLE);
+        cleanup(window, instance, debug_messenger, VK_NULL_HANDLE, surface);
         return 6;
     }
 
@@ -74,11 +74,7 @@ int main(int argc, char** argv) {
 
     if (logicalDeviceInfo.logicalDevice == VK_NULL_HANDLE) {
         std::println(stderr, "Error: Failed to create logical device");
-        cleanup(window,
-                instance,
-                debug_messenger,
-                logicalDeviceInfo.logicalDevice,
-                VK_NULL_HANDLE);
+        cleanup(window, instance, debug_messenger, logicalDeviceInfo.logicalDevice, surface);
         return 7;
     }
 
@@ -86,11 +82,7 @@ int main(int argc, char** argv) {
         glfwPollEvents();
     }
 
-    cleanup(window,
-            instance,
-            debug_messenger,
-            logicalDeviceInfo.logicalDevice,
-            VK_NULL_HANDLE);
+    cleanup(window, instance, debug_messenger, logicalDeviceInfo.logicalDevice, surface);
 
     return 0;
 }

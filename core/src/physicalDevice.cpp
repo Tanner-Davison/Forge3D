@@ -38,13 +38,13 @@ VkPhysicalDevice getPhysicalDevice(VkInstance instance) {
     uint32_t patch = VK_API_VERSION_PATCH(properties2.properties.apiVersion);
 
     std::println(" Device Name:\t{}", properties2.properties.deviceName);
-    std::println(" API VERSION:\t{}.{}.{}", major, minor, patch);
-    std::println(" Driver Version: {}", properties2.properties.driverVersion);
-    std::println(" Vendor ID:\t{:#x}", properties2.properties.vendorID);
-    std::println(" Device ID:\t{:#x}", properties2.properties.deviceID);
     // Uses vk_enum_string_helper.h
-    std::println(" Device Type:\t{}\n",
+    std::println(" Device Type:\t{}",
                  string_VkPhysicalDeviceType(properties2.properties.deviceType));
+    std::println(" Driver Version: {}", properties2.properties.driverVersion);
+    std::println(" API Version:\t{}.{}.{}", major, minor, patch);
+    std::println(" Vendor ID:\t{:#x}", properties2.properties.vendorID);
+    std::println(" Device ID:\t{:#x}\n", properties2.properties.deviceID);
 
     return devices[0];
 }

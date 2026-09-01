@@ -75,26 +75,26 @@ classDiagram
         +cleanup(window, instance, messenger, device, surface)
     }
 
-    main_cpp ..> WindowHandling : creates window
-    main_cpp ..> VulkanInstance : creates instance
-    main_cpp ..> DebugCallbackVulkan : creates messenger
-    main_cpp ..> PhysicalDevice : selects GPU
-    main_cpp ..> Surface : creates surface
-    main_cpp ..> QueueFamilies : queries indices
-    main_cpp ..> LogicalDevice : creates device
-    main_cpp ..> SwapchainSupport : queries support
-    main_cpp ..> Cleanup : tears down
+    main_cpp ..> WindowHandling: creates window
+    main_cpp ..> VulkanInstance: creates instance
+    main_cpp ..> DebugCallbackVulkan: creates messenger
+    main_cpp ..> PhysicalDevice: selects GPU
+    main_cpp ..> Surface: creates surface
+    main_cpp ..> QueueFamilies: queries indices
+    main_cpp ..> LogicalDevice: creates device
+    main_cpp ..> SwapchainSupport: queries support
+    main_cpp ..> Cleanup: tears down
 
-    VulkanInstance ..> DebugCallbackVulkan : chains messenger info via pNext
-    PhysicalDevice --> VulkanInstance : requires VkInstance
-    Surface --> VulkanInstance : requires VkInstance
-    Surface --> WindowHandling : requires GLFWwindow*
-    QueueFamilies --> PhysicalDevice : requires VkPhysicalDevice
-    QueueFamilies --> Surface : requires VkSurfaceKHR
-    QueueFamilies ..> QueueFamilyIndices : produces
-    LogicalDevice --> PhysicalDevice : requires VkPhysicalDevice
-    LogicalDevice --> QueueFamilyIndices : requires
-    LogicalDevice ..> LogicalDeviceInfo : produces
-    SwapchainSupport --> PhysicalDevice : requires VkPhysicalDevice
-    SwapchainSupport --> Surface : requires VkSurfaceKHR
-    SwapchainSupport ..> SwapchainSupportDetails : produces
+    VulkanInstance ..> DebugCallbackVulkan: chains messenger info via pNext
+    PhysicalDevice --> VulkanInstance: requires VkInstance
+    Surface --> VulkanInstance: requires VkInstance
+    Surface --> WindowHandling: requires GLFWwindow*
+    QueueFamilies --> PhysicalDevice: requires VkPhysicalDevice
+    QueueFamilies --> Surface: requires VkSurfaceKHR
+    QueueFamilies ..> QueueFamilyIndices: produces
+    LogicalDevice --> PhysicalDevice: requires VkPhysicalDevice
+    LogicalDevice --> QueueFamilyIndices: requires
+    LogicalDevice ..> LogicalDeviceInfo: produces
+    SwapchainSupport --> PhysicalDevice: requires VkPhysicalDevice
+    SwapchainSupport --> Surface: requires VkSurfaceKHR
+    SwapchainSupport ..> SwapchainSupportDetails: produces
