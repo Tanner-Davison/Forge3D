@@ -14,6 +14,7 @@ LogicalDeviceInfo createLogicalDevice(VkPhysicalDevice   pPhysicalDevice,
     std::set<uint32_t> uniqueQueueFamilies = {familyIndices.graphicsFamilyIndex.value(),
                                               familyIndices.presentFamilyIndex.value()};
 
+    /*CREATES QUEUE INFO FOR EACH FAMILY*/
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
     for (const auto family : uniqueQueueFamilies) {
         VkDeviceQueueCreateInfo createInfoQueue{
@@ -39,7 +40,7 @@ LogicalDeviceInfo createLogicalDevice(VkPhysicalDevice   pPhysicalDevice,
 
     };
 
-    /* Attempting to create Logical Device */
+    /* CREATE LOGICAL DEVICE */
     VkResult res =
         vkCreateDevice(pPhysicalDevice, &deviceInfo, VK_NULL_HANDLE, &info.logicalDevice);
     if (res != VK_SUCCESS) {
