@@ -53,12 +53,12 @@ LogicalDeviceInfo createLogicalDevice(VkPhysicalDevice   pPhysicalDevice,
     bool swapchainExtensionSupported = false;
     bool portabilitySubsetSupported  = false;
 
+    bool canStop = driverPropertiesSupported && swapchainExtensionSupported;
+
 #ifdef __APPLE__
-    bool canStop =
+    canStop =
         driverPropertiesSupported && swapchainExtensionSupported && portabilitySubsetSupported;
 #endif
-
-    bool canStop = driverPropertiesSupported && swapchainExtensionSupported;
 
     /*Checking for support of VK_KHR_bind_memory2*/
     for (uint32_t i = 0; i < extensionCount; i++) {
