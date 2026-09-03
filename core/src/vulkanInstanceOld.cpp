@@ -1,13 +1,11 @@
-#include "VulkanInstance.hpp"
+#include "vulkanInstanceOld.hpp"
 #include "debugCallbackVulkan.hpp"
 #include <GLFW/glfw3.h>
 #include <cstdint>
 #include <print>
-#include <stdexcept>
 #include <vector>
 
-// Constructor
-VulkanInstance::VulkanInstance(const char* appName) {
+VkInstance createInstance(const char* appName) {
     VkApplicationInfo app_info = {
         .sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO,
         .pNext              = nullptr,
@@ -64,34 +62,12 @@ VulkanInstance::VulkanInstance(const char* appName) {
         .ppEnabledExtensionNames = extensions_with_debug_utils.data(),
     };
 
-    VkResult res = vkCreateInstance(&instance_info, nullptr, &this->instance);
+    VkInstance vk_instance;
+
+    VkResult res = vkCreateInstance(&instance_info, nullptr, &vk_instance);
     if (res != VK_SUCCESS) {
-        throw std::runtime_error("Failed to create instance");
+        std::print(stderr, "Failed to create instance");
+        return VK_NULL_HANDLE;
     }
-
-    /*CREATE DEBUG MESSENGER*/
-    this->debugMessenger = VK_NULL_HANDLE;
-
-    if (CreateDebugUtilsMessengerEXT(this->instance,
-                                     &debug_create_info,
-                                     nullptr,
-                                     &this->debugMessenger) != VK_SUCCESS) {
-        vkDestroyInstance(this->instance, nullptr);
-        throw std::runtime_error("Failed to set up runtime debug messenger!");
-    }
-}
-
-// Destructor
-VulkanInstance::~VulkanInstance() {
-    if (this->debugMessenger != VK_NULL_HANDLE) { // redundant  check keeping for clarity
-        DestroyDebugUtilsMessengerEXT(this->instance, this->debugMessenger, nullptr);
-    }
-    if (this->instance != VK_NULL_HANDLE) { // redundant  check keeping for clarity
-        vkDestroyInstance(this->instance, nullptr);
-    }
-}
-
-// Get Instance handle
-VkInstance VulkanInstance::Handle() const {
-    return this->instance;
+    return vk_instance;
 };

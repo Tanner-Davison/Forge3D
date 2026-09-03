@@ -1,4 +1,23 @@
 #pragma once
 #include <vulkan/vulkan.h>
 
-VkInstance createInstance(const char* appName);
+class VulkanInstance {
+  public:
+    VulkanInstance(const char* appName);
+
+    ~VulkanInstance();
+
+    // copy constructors
+    VulkanInstance(const VulkanInstance&)            = delete;
+    VulkanInstance& operator=(const VulkanInstance&) = delete;
+
+    // move constructors
+    VulkanInstance(VulkanInstance&&)            = delete;
+    VulkanInstance& operator=(VulkanInstance&&) = delete;
+
+    VkInstance Handle() const;
+
+  private:
+    VkInstance               instance{VK_NULL_HANDLE};
+    VkDebugUtilsMessengerEXT debugMessenger{VK_NULL_HANDLE};
+};
