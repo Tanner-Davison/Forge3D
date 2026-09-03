@@ -3,6 +3,7 @@ build/
 compile_flags.txt
 main
 .clangd
+.DS_Store
 
 # editors
 .vscode/
@@ -29,4 +30,3 @@ _deps
 .claude/
 CLAUDE.md
 
-.clangd
