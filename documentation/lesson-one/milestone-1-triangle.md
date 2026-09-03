@@ -63,8 +63,18 @@ framebuffers → command buffers → sync/present.
       `logicalDevice.cpp` to dedupe graphics/present family indices via
       `std::set<uint32_t>` before building `VkDeviceQueueCreateInfo` entries —
       RTX 3090 reports both indices as `0`)
-- [ ] Step 7 — swapchain *(current)*
-- [ ] Step 8 — image views + render pass
+- [x] Step 7 — swapchain (`swapchainSupport.cpp`: `chooseSwapSurfaceFormat`,
+      `chooseSwapPresentMode`, `chooseSwapExtent`, and `createSwapchain`
+      building `VkSwapchainCreateInfoKHR` + `vkCreateSwapchainKHR`; wired the
+      previously-unused `getSwapchainSupportDetails` query into `main.cpp`
+      and registered `swapchainSupport.cpp` in `CMakeLists.txt` `SOURCES`
+      — it had been written but never actually linked into the build; grew
+      `cleanup.hpp` to accept and destroy the `VkSwapchainKHR`, ordered
+      before the logical device since the swapchain is its child. Also
+      added cross-platform `VK_KHR_portability_enumeration` (instance) /
+      `VK_KHR_portability_subset` (device) extension support, gated behind
+      `#ifdef __APPLE__`, for eventual MoltenVK compatibility)
+- [ ] Step 8 — image views + render pass *(current)*
 - [ ] Step 9 — graphics pipeline
 - [ ] Step 10 — framebuffers + command buffers
 - [ ] Step 11 — render loop + sync

@@ -70,6 +70,24 @@ GLFW-required WSI extensions) and validation layers get enabled up front.
 
 ---
 
+## vkCreateSwapchainKHR
+
+**Category:** Swapchain / WSI
+
+**What it does:** Creates a `VkSwapchainKHR` — the ring of presentable
+`VkImage`s the GPU renders into and hands off to the window system — from a
+`VkSwapchainCreateInfoKHR` describing image count, format, color space,
+extent, usage, sharing mode, transform, and present mode.
+
+**Why it matters here:** This is where the three chosen settings
+(`chooseSwapSurfaceFormat`, `chooseSwapPresentMode`, `chooseSwapExtent`) and
+the queried `SwapchainSupport` actually become a real GPU object.
+`createSwapchain()` in `swapchainSupport.cpp` also branches
+`VK_SHARING_MODE_CONCURRENT` vs. `VK_SHARING_MODE_EXCLUSIVE` here, depending
+on whether the graphics and present queue families differ.
+
+---
+
 ## vkDestroyDebugUtilsMessengerEXT
 
 **Category:** Validation / Debugging (extension function, loaded dynamically)
@@ -119,6 +137,21 @@ behavior that validation layers will flag.
 **Why it matters here:** The surface is a child of the instance, not the
 device, so it must be destroyed before `vkDestroyInstance` — and after
 anything (like a future swapchain) that was built from it.
+
+---
+
+## vkDestroySwapchainKHR
+
+**Category:** Swapchain / WSI
+
+**What it does:** Destroys a `VkSwapchainKHR` and the `VkImage`s it owns —
+but *not* any `VkImageView`s created from those images, which have to be
+destroyed separately.
+
+**Why it matters here:** The swapchain is a child of the logical device, so
+it must be destroyed before `vkDestroyDevice`. `cleanup.hpp` destroys it
+right after the debug messenger and before the device, matching that
+dependency.
 
 ---
 
@@ -237,7 +270,7 @@ can actually present on a given physical device.
 
 **Why it matters here:** You don't get to request an arbitrary pixel format
 for the swapchain — you pick one from whatever this call reports the
-surface actually supports. Populates `SwapchainSupportDetails::formats`.
+surface actually supports. Populates `SwapchainSupport::formats`.
 
 ---
 
@@ -253,7 +286,7 @@ surface supports for handing finished images to the display.
 vsync/tearing behavior later. `VK_PRESENT_MODE_FIFO_KHR` is the only mode
 the spec *guarantees* exists everywhere — anything else must be confirmed
 present in this list before it's requested. Populates
-`SwapchainSupportDetails::presentModes`.
+`SwapchainSupport::presentationModes`.
 
 ---
 

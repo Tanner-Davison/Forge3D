@@ -127,6 +127,53 @@ them too, in the same reverse-of-creation-order pattern.
    list — requesting an unsupported extension makes `vkCreateDevice` fail
    with `VK_ERROR_EXTENSION_NOT_PRESENT`.
 
+10. **Swapchain settings selection** (`chooseSwapSurfaceFormat`,
+    `chooseSwapPresentMode`, `chooseSwapExtent` in `swapchainSupport.cpp`) —
+    three independent design decisions made from the data
+    `getSwapchainSupportDetails` already queried, each with a standard
+    preferred choice plus a spec-guaranteed fallback: surface format prefers
+    `VK_FORMAT_B8G8R8A8_SRGB` + `VK_COLOR_SPACE_SRGB_NONLINEAR_KHR`, falling
+    back to whatever's first in the list if that combo isn't offered;
+    present mode prefers `VK_PRESENT_MODE_MAILBOX_KHR` (low-latency triple
+    buffering), falling back to `VK_PRESENT_MODE_FIFO_KHR` (the only mode
+    the spec guarantees exists everywhere); extent either takes
+    `capabilities.currentExtent` directly, or — when the surface reports
+    `currentExtent.width == UINT32_MAX` (a sentinel meaning "you choose") —
+    queries `glfwGetFramebufferSize` and clamps it into
+    `[minImageExtent, maxImageExtent]` with `std::clamp`.
+11. **`VkSwapchainKHR` creation** (`createSwapchain` in
+    `swapchainSupport.cpp`) — folds the three chosen settings plus the
+    queried capabilities into one `VkSwapchainCreateInfoKHR` and calls
+    `vkCreateSwapchainKHR`. Two details worth remembering: image count is
+    `capabilities.minImageCount + 1` (one extra so the driver isn't ever
+    forced to stall waiting on the app), clamped back down to
+    `maxImageCount` only if that's nonzero (zero means "no upper limit," the
+    same gotcha noted in item 8 below); and `imageSharingMode` branches on
+    whether the graphics and present queue families actually differ —
+    `VK_SHARING_MODE_CONCURRENT` (no ownership transfers needed, simpler but
+    slower) when they're different families, `VK_SHARING_MODE_EXCLUSIVE`
+    (best performance, requires explicit ownership transfers to use from
+    another family) when they're the same, which is the common case on this
+    RTX 3090 where both indices land on family `0`.
+12. **`cleanup.hpp` grew a `VkSwapchainKHR` parameter** — the swapchain is a
+    child of the logical device, so `vkDestroySwapchainKHR` has to run
+    *before* `vkDestroyDevice`. Destruction order is now: messenger →
+    swapchain → device → surface → instance → window, exactly reversing
+    creation order as the convention below requires.
+13. **Cross-platform portability extensions** — `VK_KHR_portability_enumeration`
+    (instance-level, `vulkanInstance.cpp`) plus the
+    `VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR` flag, and
+    `VK_KHR_portability_subset` (device-level, `logicalDevice.cpp`), both
+    gated behind `#ifdef __APPLE__` since they only matter for MoltenVK
+    (Vulkan-over-Metal) — a real conformant driver like NVIDIA's on Linux
+    never advertises `portability_subset`, so requiring it unconditionally
+    would make this codebase's Linux path either fail or silently disable
+    optimizations meant only for Mac. `VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME`
+    had to be manually `#define`d in `logicalDevice.cpp`, since the official
+    Vulkan headers only expose it when `VK_ENABLE_BETA_EXTENSIONS` is
+    defined at compile time — this project isn't using that flag, so the
+    name string is declared by hand instead of pulled from `vulkan_core.h`.
+
 **The "count, then array" convention** has now appeared four times
 (`glfwGetRequiredInstanceExtensions`, `vkEnumeratePhysicalDevices`,
 `vkGetPhysicalDeviceQueueFamilyProperties`, and implicitly in layer/extension
@@ -176,7 +223,14 @@ still ahead.
   lesson too — a first draft's `surface == VK_NULL_HANDLE` branch returned
   early but skipped the `cleanup()` call every sibling branch made, leaking
   the window/instance/messenger on that one path. "Stops" means "stops and
-  tears down," not just "stops."
+  tears down," not just "stops." Recurred a fourth time, in the opposite
+  direction, in the swapchain-creation failure branch: a first draft called
+  `cleanup()` on `vkCreateSwapchainKHR` failure but had no `return` after
+  it, so execution fell through into the render loop using a window
+  `cleanup()` had just destroyed (and a GLFW that had just been
+  terminated) — caught in review before it was ever run. "Stops and tears
+  down" cuts both ways: tearing down without stopping is just as broken as
+  stopping without tearing down.
 - **A loop that searches for multiple independent things needs an
   independent stop condition for each one.** `findQueueFamilies`'s first
   draft checked present-support and graphics-support in the same loop
@@ -194,6 +248,21 @@ still ahead.
   same way — an independent `if (!found)` guard per target, with the
   combined early-exit condition re-evaluated inside the loop rather than
   computed once beforehand.
+- **A platform-conditional early-exit condition needs to actually be
+  conditional, not just wrapped in a preprocessor guard next to an
+  unconditional twin.** Adding the `VK_KHR_portability_subset` check to
+  `createLogicalDevice`'s extension loop first landed with `canStop`
+  requiring `portabilitySubsetSupported` unconditionally — which can never
+  become `true` on a real conformant driver (NVIDIA on Linux never reports
+  that extension), silently disabling the loop's early-`break` on this
+  dev's actual machine. The fix attempt after that made it worse: two
+  separate `#ifdef __APPLE__ ... #endif` blocks each declaring `bool
+  canStop`, which compiles on Linux (the first block is stripped) but is a
+  duplicate-declaration error on Mac — exactly the platform the guard was
+  supposed to support. The working shape is one unconditional declaration
+  covering the platform-independent case, then an `#ifdef __APPLE__`
+  block that *reassigns* (not redeclares) it to fold in the Mac-only
+  condition.
 
 ## Environment-specific gotchas worth remembering
 
@@ -228,7 +297,10 @@ Milestone 1 (hardcoded triangle) progress — see `lesson-one/milestone-1-triang
 for the full step list. As of this note: instance, validation layers, physical
 device + queue family selection, window surface creation, present-family
 detection, logical device + deduplicated graphics/present queue creation, and
-swapchain support querying (capabilities/formats/present modes) are all done.
-Still ahead within Step 7: enabling the `VK_KHR_swapchain` device extension,
-choosing a format/present mode/extent from the queried support details, and
-creating the actual `VkSwapchainKHR`.
+the full swapchain stage (support querying, format/present-mode/extent
+selection, `VkSwapchainCreateInfoKHR` + `vkCreateSwapchainKHR`, and
+`cleanup.hpp` extended to destroy it in the correct order) are all done. Also
+added, same session: cross-platform portability extension support
+(`VK_KHR_portability_enumeration` instance-level, `VK_KHR_portability_subset`
+device-level, both `#ifdef __APPLE__`-gated) for eventual MoltenVK
+compatibility. Next up: Step 8 — image views + render pass.
