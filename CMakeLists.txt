@@ -20,7 +20,8 @@ set(SOURCES
     core/src/physicalDevice.cpp
     core/src/queueFamilies.cpp
     core/src/logicalDevice.cpp
-    core/src/surface.cpp)
+    core/src/surface.cpp
+    core/src/swapchainSupport.cpp)
 # TARGETS
 # -------------------------------------------------------------------------------------------
 add_executable(${PROJECT_NAME} ${SOURCES})

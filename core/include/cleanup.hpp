@@ -6,9 +6,14 @@ static void cleanup(GLFWwindow*              window,
                     VkInstance               instance,
                     VkDebugUtilsMessengerEXT messenger,
                     VkDevice                 logicalDevice,
-                    VkSurfaceKHR             surface) {
+                    VkSurfaceKHR             surface,
+                    VkSwapchainKHR           swapchain) {
     if (messenger != VK_NULL_HANDLE) {
         DestroyDebugUtilsMessengerEXT(instance, messenger, nullptr);
+    }
+
+    if (swapchain != VK_NULL_HANDLE) {
+        vkDestroySwapchainKHR(logicalDevice, swapchain, nullptr);
     }
     if (logicalDevice != VK_NULL_HANDLE) {
         vkDestroyDevice(logicalDevice, nullptr);
@@ -19,6 +24,7 @@ static void cleanup(GLFWwindow*              window,
     if (instance != VK_NULL_HANDLE) {
         vkDestroyInstance(instance, nullptr);
     }
+
     if (window != nullptr) {
         glfwDestroyWindow(window);
     }

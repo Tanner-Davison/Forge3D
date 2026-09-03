@@ -4,6 +4,7 @@
 #include "physicalDevice.hpp"
 #include "queueFamilies.hpp"
 #include "surface.hpp"
+#include "swapchainSupport.hpp"
 #include "vulkanInstance.hpp"
 #include "windowHandling.hpp"
 #include <GLFW/glfw3.h>
@@ -19,7 +20,12 @@ int main(int argc, char** argv) {
     VkInstance instance = createInstance("Tannery");
 
     if (instance == VK_NULL_HANDLE) {
-        cleanup(window, VK_NULL_HANDLE, VK_NULL_HANDLE, VK_NULL_HANDLE, VK_NULL_HANDLE);
+        cleanup(window,
+                VK_NULL_HANDLE,
+                VK_NULL_HANDLE,
+                VK_NULL_HANDLE,
+                VK_NULL_HANDLE,
+                VK_NULL_HANDLE);
         return 2;
     }
 
@@ -34,7 +40,12 @@ int main(int argc, char** argv) {
                                      nullptr,
                                      &debug_messenger) != VK_SUCCESS) {
         std::println(stderr, "Failed to set up runtime debug messenger!");
-        cleanup(window, instance, VK_NULL_HANDLE, VK_NULL_HANDLE, VK_NULL_HANDLE);
+        cleanup(window,
+                instance,
+                VK_NULL_HANDLE,
+                VK_NULL_HANDLE,
+                VK_NULL_HANDLE,
+                VK_NULL_HANDLE);
         return 3;
     }
 
@@ -43,7 +54,12 @@ int main(int argc, char** argv) {
 
     if (physicalDevice == VK_NULL_HANDLE) {
         std::println(stderr, "Failed to find a suitable physical device!");
-        cleanup(window, instance, debug_messenger, VK_NULL_HANDLE, VK_NULL_HANDLE);
+        cleanup(window,
+                instance,
+                debug_messenger,
+                VK_NULL_HANDLE,
+                VK_NULL_HANDLE,
+                VK_NULL_HANDLE);
         return 4;
     }
     /* Uncomment to view all Physical Devices found--------------------------------
@@ -55,7 +71,7 @@ int main(int argc, char** argv) {
     if (surface == VK_NULL_HANDLE) {
         std::println(stderr,
                      "Error: Surface creation return a VK_NULL_HANDLE creation failed.");
-        cleanup(window, instance, debug_messenger, VK_NULL_HANDLE, surface);
+        cleanup(window, instance, debug_messenger, VK_NULL_HANDLE, surface, VK_NULL_HANDLE);
         return 5;
     }
 
@@ -64,7 +80,7 @@ int main(int argc, char** argv) {
 
     if (!graphicsFamilyQueue.isComplete()) {
         std::println(stderr, "Error: Missing Graphics Family or Present family index!");
-        cleanup(window, instance, debug_messenger, VK_NULL_HANDLE, surface);
+        cleanup(window, instance, debug_messenger, VK_NULL_HANDLE, surface, VK_NULL_HANDLE);
         return 6;
     }
 
@@ -74,15 +90,54 @@ int main(int argc, char** argv) {
 
     if (logicalDeviceInfo.logicalDevice == VK_NULL_HANDLE) {
         std::println(stderr, "Error: Failed to create logical device");
-        cleanup(window, instance, debug_messenger, logicalDeviceInfo.logicalDevice, surface);
+        cleanup(window,
+                instance,
+                debug_messenger,
+                logicalDeviceInfo.logicalDevice,
+                surface,
+                VK_NULL_HANDLE);
         return 7;
+    }
+
+    /*SWAPCHAIN SUPPORT DETAILS*/
+    SwapchainSupport swapchainSupport = getSwapchainSupportDetails(physicalDevice, surface);
+    if (!swapchainSupport.isComplete()) {
+        std::println(stderr, "Error: Failed to collect swapchain support details");
+        cleanup(window,
+                instance,
+                debug_messenger,
+                logicalDeviceInfo.logicalDevice,
+                surface,
+                VK_NULL_HANDLE);
+        return 8;
+    }
+
+    VkSwapchainKHR swapchain = createSwapchain(window,
+                                               logicalDeviceInfo.logicalDevice,
+                                               swapchainSupport,
+                                               surface,
+                                               graphicsFamilyQueue);
+    if (swapchain == nullptr) {
+        std::println(stderr, "Error: Failed to create swapchain ");
+        cleanup(window,
+                instance,
+                debug_messenger,
+                logicalDeviceInfo.logicalDevice,
+                surface,
+                VK_NULL_HANDLE);
+        return 9;
     }
 
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
     }
 
-    cleanup(window, instance, debug_messenger, logicalDeviceInfo.logicalDevice, surface);
+    cleanup(window,
+            instance,
+            debug_messenger,
+            logicalDeviceInfo.logicalDevice,
+            surface,
+            swapchain);
 
     return 0;
 }
