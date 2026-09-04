@@ -102,10 +102,6 @@ LogicalDevice::LogicalDevice(VkPhysicalDevice          pPhysicalDevice,
     if (!swapchainExtensionSupported) {
         throw std::runtime_error("Required extensions VK_KHR_swapchain not supported");
     }
-    if (!driverPropertiesSupported) {
-        throw std::runtime_error(
-            "Required driver VK_KHR_DRIVER_PROPERTIES_EXTENSION_NAME not supported");
-    }
 
 #ifdef __APPLE__
 
