@@ -74,6 +74,17 @@ framebuffers → command buffers → sync/present.
       added cross-platform `VK_KHR_portability_enumeration` (instance) /
       `VK_KHR_portability_subset` (device) extension support, gated behind
       `#ifdef __APPLE__`, for eventual MoltenVK compatibility)
+> **Note (post-Step 7):** the codebase was restructured from flat
+> functions + a manual `cleanup.hpp` into RAII wrapper classes — `Window`,
+> `VulkanInstance`, `Surface`, `LogicalDevice`, `Swapchain` — owned by a new
+> `App` class, whose member declaration order drives correct
+> construction/destruction automatically. `cleanup.hpp` and the lowercase
+> `windowHandling.cpp`/`vulkanInstance.cpp`/`logicalDevice.cpp`/`surface.cpp`
+> files no longer exist; the Step 1–7 entries above describe the codebase as
+> it existed *at that point in the lesson sequence*, not its current
+> structure. Full writeup in `project-notes.md` ("Current architecture" and
+> concept 14).
+
 - [ ] Step 8 — image views + render pass *(current)*
 - [ ] Step 9 — graphics pipeline
 - [ ] Step 10 — framebuffers + command buffers

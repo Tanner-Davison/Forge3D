@@ -16,25 +16,56 @@ came from.
 
 ```
 core/
-  include/   *.hpp — declarations, and a few fully inline header-only
-             helper modules (debugCallbackVulkan.hpp)
-  src/       *.cpp — one .cpp per Vulkan-setup concern
+  include/   *.hpp — RAII wrapper class declarations, plus a couple of
+             free-function/header-only helper modules that don't own a
+             long-lived handle (physicalDevice, queueFamilies,
+             swapchainSupport, debugCallbackVulkan.hpp)
+  src/       *.cpp — one .cpp per class/concern
 ```
 
-Established convention: **one Vulkan concern per file pair**
-(`windowHandling`, `vulkanInstance`, `physicalDevice`, `queueFamilies`, ...).
-Each exposes a single creation/query function returning the relevant handle
-or struct, with its own internal error handling — `main.cpp` stays a flat
-sequence of "create X, check X, create Y, check Y, ..." calls. This has
-held up well through 5 lessons' worth of growth and is worth continuing
-into the swapchain/pipeline stages.
+**Restructured (this session) from the original flat-function-per-file +
+manual `cleanup()` design into RAII wrapper classes** —
+`Window`, `VulkanInstance`, `Surface`, `LogicalDevice`, `Swapchain`, each
+owning exactly one (or a small related set of) Vulkan handle(s). Every
+wrapper follows the same shape: the constructor creates the handle or
+`throw`s `std::runtime_error` on failure; the destructor destroys it if
+it's not `VK_NULL_HANDLE`; copy and move construction/assignment are all
+explicitly `= delete`d, since these types own a unique GPU resource that
+must never be duplicated or left dangling. `physicalDevice` and
+`queueFamilies` stayed as plain free functions — a `VkPhysicalDevice` isn't
+created/destroyed by the app (it's enumerated hardware), and
+`QueueFamilyIndices` is just a query result struct, so neither needs
+ownership semantics.
 
-`main.cpp` also holds a `cleanup(window, instance, messenger)` helper
-(added session 2) that null-checks each handle before destroying it, called
-from every failure branch — this replaced repeating the same 3–4 teardown
-lines at each early return. As more long-lived Vulkan objects get created
-(device, swapchain, pipeline...), this helper will need to grow to accept
-them too, in the same reverse-of-creation-order pattern.
+A new `App` class (`App.hpp`/`App.cpp`) owns one instance of each wrapper
+as a member field, in dependency order:
+`window → instance → surface → physicalDevice → indices → device → support → swapchain`.
+This ordering is load-bearing, not cosmetic — C++ constructs members in
+declaration order and destroys them in the *reverse* of that order,
+regardless of what order they're listed in the constructor's initializer
+list. Because the fields are declared in the same order the objects
+actually depend on each other, `App`'s constructor builds everything
+correctly and its (implicit, `= default`) destructor tears everything down
+in the exact reverse-of-creation order the project already required by
+convention — automatically, with no function to remember to call or update.
+
+`main.cpp` is now just:
+```cpp
+try {
+    App app(WINDOW_WIDTH, WINDOW_HEIGHT, "Tannery");
+    app.run();
+} catch (const std::exception& e) {
+    std::println(stderr, "Fatal error: {}", e.what());
+    return 1;
+}
+```
+The old pattern — "create X, check X == VK_NULL_HANDLE, print, call
+`cleanup(...)` with the right handles, `return N`" repeated at every
+stage — is gone. Failure now means a constructor throws, and stack
+unwinding runs every already-constructed member's destructor automatically
+on the way out, so the object never exists half-torn-down. `cleanup.hpp`
+itself was deleted. See "Concepts covered" item 14 below for the bugs this
+refactor surfaced and how they were fixed.
 
 ## Concepts covered so far
 
@@ -174,6 +205,35 @@ them too, in the same reverse-of-creation-order pattern.
     defined at compile time — this project isn't using that flag, so the
     name string is declared by hand instead of pulled from `vulkan_core.h`.
 
+14. **RAII restructure** — every Vulkan-owning concern became a class
+    (`Window`, `VulkanInstance`, `Surface`, `LogicalDevice`, `Swapchain`)
+    with a throwing constructor and a destructor that null-checks before
+    destroying, orchestrated by a new `App` class whose member declaration
+    order encodes the dependency graph (see "Current architecture" above).
+    Three real bugs came out of doing this conversion, all caught in
+    review before ever building:
+    - `swapchainSupport.cpp`'s old free-function `chooseSwapSurfaceFormat`
+      / `chooseSwapPresentMode` / `chooseSwapExtent` / `createSwapchain`
+      were left in place after `Swapchain`'s constructor was written to do
+      the exact same work as private methods — ~95 lines of dead code
+      nothing called anymore, since it happened to compile fine (different
+      scope: free functions vs. `Swapchain::` members). Deleted once
+      spotted; only `getSwapchainSupportDetails` still belongs in that
+      file.
+    - `Surface`'s move-assignment operator was declared
+      (`Surface& operator=(Surface&&);`) but never `= delete`d or defined
+      — inconsistent with its other three special members, and a latent
+      link error (not even a clear compile error) waiting for the day
+      something actually tried to move-assign a `Surface`.
+    - Converting `LogicalDevice`'s extension-check loop accidentally
+      **added** a new hard requirement: the loop already tracked whether
+      `VK_KHR_driver_properties` was supported, but a stray `throw` got
+      added for it not being present — even though nothing in the
+      codebase reads driver-properties data, so failing startup over a
+      driver not reporting an unused extension wasn't intentional.
+      Reverted; that extension is opportunistic again (enabled if present,
+      simply skipped if not).
+
 **The "count, then array" convention** has now appeared four times
 (`glfwGetRequiredInstanceExtensions`, `vkEnumeratePhysicalDevices`,
 `vkGetPhysicalDeviceQueueFamilyProperties`, and implicitly in layer/extension
@@ -230,7 +290,13 @@ still ahead.
   `cleanup()` had just destroyed (and a GLFW that had just been
   terminated) — caught in review before it was ever run. "Stops and tears
   down" cuts both ways: tearing down without stopping is just as broken as
-  stopping without tearing down.
+  stopping without tearing down. **This entire bug class — forgetting to
+  update a manual teardown call, forgetting to `return` after one, getting
+  the order wrong — is what the RAII restructure (concept 14) eliminates
+  structurally.** There's no `cleanup()` function left to forget to call or
+  update; a constructor throwing just unwinds the stack and every
+  already-built member's destructor runs, in the right order, without any
+  code written per-object to make that happen.
 - **A loop that searches for multiple independent things needs an
   independent stop condition for each one.** `findQueueFamilies`'s first
   draft checked present-support and graphics-support in the same loop
@@ -298,9 +364,14 @@ for the full step list. As of this note: instance, validation layers, physical
 device + queue family selection, window surface creation, present-family
 detection, logical device + deduplicated graphics/present queue creation, and
 the full swapchain stage (support querying, format/present-mode/extent
-selection, `VkSwapchainCreateInfoKHR` + `vkCreateSwapchainKHR`, and
-`cleanup.hpp` extended to destroy it in the correct order) are all done. Also
-added, same session: cross-platform portability extension support
+selection, `VkSwapchainCreateInfoKHR` + `vkCreateSwapchainKHR`) are all done.
+Also done, same session: cross-platform portability extension support
 (`VK_KHR_portability_enumeration` instance-level, `VK_KHR_portability_subset`
 device-level, both `#ifdef __APPLE__`-gated) for eventual MoltenVK
-compatibility. Next up: Step 8 — image views + render pass.
+compatibility. The whole codebase was then restructured from flat functions +
+manual `cleanup.hpp` into RAII wrapper classes (`Window`, `VulkanInstance`,
+`Surface`, `LogicalDevice`, `Swapchain`) owned by a new `App` orchestrator —
+see "Current architecture" and concept 14 above; `cleanup.hpp` no longer
+exists. Next up: Step 8 — image views + render pass, which will need a new
+RAII wrapper of its own for the image views (and eventually the render pass)
+following the same pattern.

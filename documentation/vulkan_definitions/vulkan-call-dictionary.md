@@ -38,6 +38,7 @@ defaults to.
 "Validation layer: ..." message printed to `stderr` from `debugCallback`.
 It's an `EXT` function, so it isn't statically linked — it has to be looked
 up at runtime via `vkGetInstanceProcAddr` (see the proxy pattern below).
+Called from `VulkanInstance`'s constructor.
 
 ---
 
@@ -95,8 +96,13 @@ on whether the graphics and present queue families differ.
 **What it does:** Destroys the debug messenger created above.
 
 **Why it matters here:** Must be destroyed before `vkDestroyInstance`,
-since it's a child of the instance — it's the first handle torn down in
-`cleanup.hpp`, since nothing else in the app depends on it staying alive.
+since it's a child of the instance. `VulkanInstance::~VulkanInstance()`
+destroys it first, then the instance itself, in that order within the same
+destructor. In the overall app-teardown sequence this no longer runs
+first, though — `App`'s member declaration order means `Swapchain`,
+`LogicalDevice`, and `Surface` are all torn down before `VulkanInstance`
+is, since they're declared after it and C++ destroys members in reverse
+declaration order.
 
 ---
 
@@ -149,9 +155,10 @@ but *not* any `VkImageView`s created from those images, which have to be
 destroyed separately.
 
 **Why it matters here:** The swapchain is a child of the logical device, so
-it must be destroyed before `vkDestroyDevice`. `cleanup.hpp` destroys it
-right after the debug messenger and before the device, matching that
-dependency.
+it must be destroyed before `vkDestroyDevice`. `Swapchain::~Swapchain()`
+handles this, and it doesn't need to know anything about that ordering
+requirement explicitly — `App` declares `swapchain` as its last member, so
+C++ destroys it first, before `device` (a `LogicalDevice`), automatically.
 
 ---
 
