@@ -1,8 +1,6 @@
 
 #include "LogicalDevice.hpp"
-#include "vulkan_core.h"
 #include <cstring>
-#include <print>
 #include <set>
 #include <stdexcept>
 #include <vector>
@@ -155,3 +153,15 @@ LogicalDevice::~LogicalDevice() {
         vkDestroyDevice(this->logicalDevice, nullptr);
     }
 }
+
+VkDevice LogicalDevice::handle() const {
+    return this->logicalDevice;
+};
+
+VkQueue LogicalDevice::GraphicsQueueHandle() const {
+    return this->graphicsQueue;
+};
+
+VkQueue LogicalDevice::PresentQueueHandle() const {
+    return this->presentQueue;
+};

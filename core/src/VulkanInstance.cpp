@@ -92,6 +92,6 @@ VulkanInstance::~VulkanInstance() {
 }
 
 // Get Instance handle
-VkInstance VulkanInstance::Handle() const {
+VkInstance VulkanInstance::handle() const {
     return this->instance;
 };

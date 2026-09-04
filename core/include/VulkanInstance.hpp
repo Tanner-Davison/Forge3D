@@ -15,7 +15,7 @@ class VulkanInstance {
     VulkanInstance(VulkanInstance&&)            = delete;
     VulkanInstance& operator=(VulkanInstance&&) = delete;
 
-    VkInstance Handle() const;
+    VkInstance handle() const;
 
   private:
     VkInstance               instance{VK_NULL_HANDLE};

@@ -15,14 +15,15 @@ find_package(glfw3 REQUIRED)
 
 set(SOURCES
     core/src/main.cpp
-    core/src/vulkanInstanceOld.cpp
-    core/src/vulkanInstance.cpp
-    core/src/windowHandling.cpp
+    core/src/App.cpp
+    core/src/VulkanInstance.cpp
+    core/src/Window.cpp
     core/src/physicalDevice.cpp
     core/src/queueFamilies.cpp
-    core/src/logicalDevice.cpp
-    core/src/surface.cpp
-    core/src/swapchainSupport.cpp)
+    core/src/LogicalDevice.cpp
+    core/src/Surface.cpp
+    core/src/swapchainSupport.cpp
+    core/src/Swapchain.cpp)
 # TARGETS
 # -------------------------------------------------------------------------------------------
 add_executable(${PROJECT_NAME} ${SOURCES})

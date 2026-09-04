@@ -181,7 +181,7 @@ VkSwapchainKHR createSwapchain(GLFWwindow*        pWindow,
 
     VkSwapchainKHR swapChain;
     if (vkCreateSwapchainKHR(pLogicalDevice, &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
-        return nullptr;
+        return VK_NULL_HANDLE;
     }
     return swapChain;
 }

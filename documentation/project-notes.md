@@ -52,13 +52,13 @@ them too, in the same reverse-of-creation-order pattern.
    validation messages to our own callback (severity + type + message text),
    instead of relying on the layer's default stdout fallback. Because
    `vkCreateDebugUtilsMessengerEXT`/`vkDestroyDebugUtilsMessengerEXT` are
-   *extension* functions, they aren't linked directly — they're loaded at
+   _extension_ functions, they aren't linked directly — they're loaded at
    runtime via `vkGetInstanceProcAddr` (see `debugCallbackVulkan.hpp`'s
    proxy functions). Chaining `VkDebugUtilsMessengerCreateInfoEXT` into
-   `VkInstanceCreateInfo.pNext` also catches issues *during*
+   `VkInstanceCreateInfo.pNext` also catches issues _during_
    `vkCreateInstance`/`vkDestroyInstance` themselves, before the persistent
    runtime messenger even exists.
-4. **`VkPhysicalDevice`** — not created, *enumerated* (`vkEnumeratePhysicalDevices`,
+4. **`VkPhysicalDevice`** — not created, _enumerated_ (`vkEnumeratePhysicalDevices`,
    count-then-array). Represents real hardware already present on the
    system; a machine can expose several. `VkPhysicalDeviceProperties2` (the
    `pNext`-extensible version) gets device name/type/API version/vendor+
@@ -85,23 +85,23 @@ them too, in the same reverse-of-creation-order pattern.
    a platform-specific one, `VK_KHR_wayland_surface` here), both already
    pulled in by `glfwGetRequiredInstanceExtensions`. `glfwCreateWindowSurface`
    wraps the platform-specific creation call so the app never has to branch
-   on OS itself. A queue family supporting graphics is *not* guaranteed to
+   on OS itself. A queue family supporting graphics is _not_ guaranteed to
    support presenting to a given surface — that's a separate, per-surface
    query: `vkGetPhysicalDeviceSurfaceSupportKHR(device, familyIndex, surface,
-   &supported)`. `QueueFamilyIndices` grew a second field,
+&supported)`. `QueueFamilyIndices` grew a second field,
    `presentFamilyIndex`, plus an `isComplete()` helper. On the RTX 3090 both
    indices land on family `0`, but the code can't assume that — Vulkan
    forbids duplicate `queueFamilyIndex` entries in
    `VkDeviceCreateInfo::pQueueCreateInfos`, so `createLogicalDevice`
    deduplicates via `std::set<uint32_t>` before building one
-   `VkDeviceQueueCreateInfo` per *unique* family, and fetches both
+   `VkDeviceQueueCreateInfo` per _unique_ family, and fetches both
    `graphicsQueue` and `presentQueue` afterward (which may be the same
    handle, or may not, depending on hardware).
 
 8. **Swapchain support querying (`SwapchainSupportDetails`)** — before a
    `VkSwapchainKHR` can be created, three properties of the
    `(VkPhysicalDevice, VkSurfaceKHR)` pair must be queried:
-   `vkGetPhysicalDeviceSurfaceCapabilitiesKHR` (a single struct fill, *not*
+   `vkGetPhysicalDeviceSurfaceCapabilitiesKHR` (a single struct fill, _not_
    count-then-array — there's exactly one capabilities struct, never an
    array), `vkGetPhysicalDeviceSurfaceFormatsKHR`, and
    `vkGetPhysicalDeviceSurfacePresentModesKHR` (both back to the familiar
@@ -111,12 +111,12 @@ them too, in the same reverse-of-creation-order pattern.
    here only checks `formats`/`presentModes` non-empty, since `capabilities`
    is a single struct with no natural "empty" state. An early draft
    mistakenly gated completeness on `capabilities.maxImageCount > 0`, but
-   `maxImageCount == 0` is a *valid* spec value meaning "no upper limit,"
+   `maxImageCount == 0` is a _valid_ spec value meaning "no upper limit,"
    not a failure signal — caught and removed before it could misfire on a
    real driver reporting that value.
 
 9. **Device extensions (`VK_KHR_swapchain`)** — unlike instance extensions
-   (`VK_EXT_debug_utils`), swapchain support is a *device* extension: it
+   (`VK_EXT_debug_utils`), swapchain support is a _device_ extension: it
    must be requested per-logical-device via
    `VkDeviceCreateInfo::ppEnabledExtensionNames`, since not every
    Vulkan-capable device (e.g. a headless compute GPU) needs it. Verified
@@ -157,7 +157,7 @@ them too, in the same reverse-of-creation-order pattern.
     RTX 3090 where both indices land on family `0`.
 12. **`cleanup.hpp` grew a `VkSwapchainKHR` parameter** — the swapchain is a
     child of the logical device, so `vkDestroySwapchainKHR` has to run
-    *before* `vkDestroyDevice`. Destruction order is now: messenger →
+    _before_ `vkDestroyDevice`. Destruction order is now: messenger →
     swapchain → device → surface → instance → window, exactly reversing
     creation order as the convention below requires.
 13. **Cross-platform portability extensions** — `VK_KHR_portability_enumeration`
@@ -197,7 +197,7 @@ still ahead.
   a valid queue family index can legitimately be `0`, which would collide
   with an `-1`/`0`-as-sentinel convention.
 - **`std::print`/`std::println` (C++23) over `iostream`/`printf`** for new
-  code, but note: `std::print`'s format string uses `{}` placeholders, *not*
+  code, but note: `std::print`'s format string uses `{}` placeholders, _not_
   printf's `%d`/`%s` — mixing the two conventions compiles in some cases but
   produces wrong output (the literal `%d`/`%s` characters get printed
   as-is). Double-check this whenever translating old `fprintf` code to
@@ -206,7 +206,7 @@ still ahead.
   messenger → physical-device-derived-stuff created in that order means
   cleanup destroys in the opposite order. This became non-negotiable rather
   than theoretical the moment `VkDevice` entered the picture: a first draft
-  of `cleanup.hpp` destroyed the logical device *after* `vkDestroyInstance`,
+  of `cleanup.hpp` destroyed the logical device _after_ `vkDestroyInstance`,
   which is a genuine Vulkan Object Lifetime violation (a device is a child
   of the instance/physical-device hierarchy, not just an unrelated handle)
   — caught in review before it was ever run. Correct order going forward:
@@ -244,7 +244,7 @@ still ahead.
   is correct." Recurred a third time in the device-extension support check
   (`logicalDevice.cpp`): a first draft used one shared `else { break; }` for
   two independently-searched extension names, so a single non-matching
-  entry at any index aborted the search for *both* names at once. Fixed the
+  entry at any index aborted the search for _both_ names at once. Fixed the
   same way — an independent `if (!found)` guard per target, with the
   combined early-exit condition re-evaluated inside the loop rather than
   computed once beforehand.
@@ -257,11 +257,11 @@ still ahead.
   that extension), silently disabling the loop's early-`break` on this
   dev's actual machine. The fix attempt after that made it worse: two
   separate `#ifdef __APPLE__ ... #endif` blocks each declaring `bool
-  canStop`, which compiles on Linux (the first block is stripped) but is a
+canStop`, which compiles on Linux (the first block is stripped) but is a
   duplicate-declaration error on Mac — exactly the platform the guard was
   supposed to support. The working shape is one unconditional declaration
   covering the platform-independent case, then an `#ifdef __APPLE__`
-  block that *reassigns* (not redeclares) it to fold in the Mac-only
+  block that _reassigns_ (not redeclares) it to fold in the Mac-only
   condition.
 
 ## Environment-specific gotchas worth remembering
@@ -282,7 +282,7 @@ still ahead.
   requests will fail with `VK_ERROR_LAYER_NOT_PRESENT`.
 - **CMake keyword arguments (`REQUIRED`, etc.) and package names in
   `find_package()` are case-sensitive on Linux.** `find_package(vulkan
-  required)` silently fails to work as intended — lowercase `required` isn't
+required)` silently fails to work as intended — lowercase `required` isn't
   recognized as the keyword, and `vulkan` (lowercase) won't match the
   bundled `FindVulkan.cmake` module file on a case-sensitive filesystem.
   Needs to be `find_package(Vulkan REQUIRED)`.
