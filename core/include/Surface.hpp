@@ -2,10 +2,10 @@
 // clang-format off
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
-//clang-format on
+// clang-format on
 
 class Surface {
-public:
+  public:
     // Constructor
     Surface(VkInstance pInstance, GLFWwindow* pWindow);
 
@@ -13,7 +13,7 @@ public:
     Surface(const Surface&)            = delete;
     Surface& operator=(const Surface&) = delete;
     Surface(Surface&&)                 = delete;
-    Surface& operator=(Surface&&);
+    Surface& operator=(Surface&&)      = delete;
 
     // destructor
     ~Surface();

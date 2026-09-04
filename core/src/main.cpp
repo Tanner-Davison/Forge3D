@@ -2,10 +2,10 @@
 #include <print>
 
 int main(int argc, char** argv) {
-    constexpr int WINDOW_WIDTH{800};
-    constexpr int WINDOW_HEIGHT{600};
+    static constexpr int window_width{800};
+    constexpr int        window_height{600};
     try {
-        App app(WINDOW_WIDTH, WINDOW_HEIGHT, "Tannery");
+        App app(window_width, window_height, "Tannery");
         app.run();
     } catch (const std::exception& e) {
         std::println(stderr, "Fatal error: {}", e.what());
