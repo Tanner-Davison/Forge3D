@@ -27,7 +27,6 @@ set(SOURCES
 # TARGETS
 # -------------------------------------------------------------------------------------------
 add_executable(${PROJECT_NAME} ${SOURCES})
-target_compile_definitions(${PROJECT_NAME} PRIVATE VK_ENABLE_BETA_EXTENSIONS)
 # LINKING/INCLUDES
 # -------------------------------------------------------------------------------------------
 target_link_libraries(tannery PRIVATE glfw Vulkan::Vulkan)
@@ -36,6 +35,8 @@ if(APPLE)
     target_link_libraries(
         ${PROJECT_NAME} PUBLIC "-framework Metal" "-framework MetalKit"
                                "-framework Cocoa")
+    target_compile_definitions(${PROJECT_NAME}
+                               PRIVATE VK_ENABLE_BETA_EXTENSIONS)
 endif()
 
 target_include_directories(
