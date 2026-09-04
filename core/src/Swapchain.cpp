@@ -1,6 +1,7 @@
 #include "Swapchain.hpp"
 #include <algorithm>
 #include <limits>
+#include <print>
 #include <stdexcept>
 
 Swapchain::Swapchain(VkDevice                  pLogicalDevice,
@@ -107,6 +108,12 @@ VkPresentModeKHR Swapchain::chooseSwapPresentMode(const SwapchainSupport& suppor
     return VK_PRESENT_MODE_FIFO_KHR;
 }
 
+/* What's happening: when you're on an Apple M3 Pro with a Retina display, which has a 2x pixel
+ * density (also called a HiDPI/scale factor). GLFW's glfwCreateWindow(800, 600, ...) sizes the
+ * window in logical/screen coordinates — "800x600" in the units macOS uses for window sizing,
+ * which is not the same as actual physical pixels on a Retina screen. On a 2x display, 800
+ * logical units = 1600 actual pixels. Same for height: 600 → 1200. That's exactly the doubling
+ * you're seeing. */
 VkExtent2D Swapchain::chooseSwapExtent(GLFWwindow*                     window,
                                        const VkSurfaceCapabilitiesKHR& capabilities) {
     /*std::numeric_limits<uint32_t>::max() This is just 4294967295 (i.e. UINT32_MAX) the
@@ -122,8 +129,8 @@ VkExtent2D Swapchain::chooseSwapExtent(GLFWwindow*                     window,
                                    static_cast<uint32_t>(height)};
 
         actualExtent.width  = std::clamp(actualExtent.width,
-                                        capabilities.minImageExtent.width,
-                                        capabilities.maxImageExtent.width);
+                                         capabilities.minImageExtent.width,
+                                         capabilities.maxImageExtent.width);
         actualExtent.height = std::clamp(actualExtent.height,
                                          capabilities.minImageExtent.height,
                                          capabilities.maxImageExtent.height);

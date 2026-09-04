@@ -1,6 +1,3 @@
-#ifdef __APPLE__
-    #define VK_ENABLE_BETA_EXTENSIONS
-#endif
 #include "LogicalDevice.hpp"
 #include <cstring>
 #include <set>
