@@ -1,9 +1,12 @@
-
+#ifdef __APPLE__
+    #define VK_ENABLE_BETA_EXTENSIONS
+#endif
 #include "LogicalDevice.hpp"
 #include <cstring>
 #include <set>
 #include <stdexcept>
 #include <vector>
+#include <vulkan/vulkan.h>
 
 LogicalDevice::LogicalDevice(VkPhysicalDevice          pPhysicalDevice,
                              const QueueFamilyIndices& indices) {
@@ -34,9 +37,9 @@ LogicalDevice::LogicalDevice(VkPhysicalDevice          pPhysicalDevice,
     /*CHECK FOR EXTENSIONS COMPATIBILITY ON PHYSICAL DEVICE*/
     uint32_t extensionCount = 0;
     VkResult extensionRes   = vkEnumerateDeviceExtensionProperties(pPhysicalDevice,
-                                                                 nullptr,
-                                                                 &extensionCount,
-                                                                 nullptr);
+                                                                   nullptr,
+                                                                   &extensionCount,
+                                                                   nullptr);
     if (extensionRes != VK_SUCCESS) {
         throw std::runtime_error("Error: Unable to enumerate device extension properties");
     }
